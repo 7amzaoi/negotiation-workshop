@@ -55,8 +55,8 @@ export function HomePage() {
 
   // Derived stats
   const totalAgreements = agreements.length
-  const totalPoints = countries.reduce((sum, c) => sum + c.points, 0)
   const leadingCountry = [...countries].sort((a, b) => b.points - a.points)[0]
+  const mostActive = [...countries].sort((a, b) => b.agreement_count - a.agreement_count)[0]
   // Top 3 by points
   const top3 = [...countries].sort((a, b) => b.points - a.points).slice(0, 3)
 
@@ -129,11 +129,16 @@ export function HomePage() {
               </div>
               <div className="animate-fade-in-up" style={{ animationDelay: '300ms' }}>
                 <StatCard
-                  icon="⭐"
-                  label="إجمالي النقاط"
-                  value={totalPoints}
-                  sublabel="Total Points"
+                  icon="🔥"
+                  label="الأكثر نشاطاً"
                   accent="accent"
+                  value={mostActive && mostActive.agreement_count > 0 ? (
+                    <span className="inline-flex items-center gap-1.5">
+                      <FlagImage emoji={mostActive.flag_emoji} size="sm" />
+                      {mostActive.name}
+                    </span>
+                  ) : '—'}
+                  sublabel="Most Active"
                 />
               </div>
             </>
