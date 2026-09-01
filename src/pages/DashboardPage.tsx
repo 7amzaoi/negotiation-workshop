@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useCountries } from '../hooks/useCountries'
 import { useAgreements } from '../hooks/useAgreements'
+import { useSettings } from '../hooks/useSettings'
 import { ProtectedRoute } from '../components/ProtectedRoute'
 import { showToast } from '../components/Toast'
 import { FlagImage } from '../components/FlagImage'
@@ -372,6 +373,8 @@ function DashboardContent() {
   const { signOut } = useAuth()
   const { countries, loading: countriesLoading, updatePoints, updateRating } = useCountries()
   const { agreements, loading: agreementsLoading, createAgreement, deleteAgreement, updateAgreement } = useAgreements()
+  const { resultsVisible, toggleResultsVisible } = useSettings()
+  const [togglingResults, setTogglingResults] = useState(false)
 
   // New agreement form state
   const [title, setTitle] = useState('')
@@ -427,12 +430,35 @@ function DashboardContent() {
           <h1 className="text-2xl md:text-3xl font-black text-royal-blue">⚙️ لوحة التحكم</h1>
           <p className="text-sm text-slate-gray mt-1">إدارة النقاط والاتفاقيات</p>
         </div>
-        <button
-          onClick={signOut}
-          className="bg-red-50 hover:bg-red-100 text-red-600 font-semibold px-4 py-2 rounded-xl transition text-sm border border-red-200"
-        >
-          تسجيل الخروج
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={async () => {
+              setTogglingResults(true)
+              try {
+                await toggleResultsVisible()
+                showToast(resultsVisible ? '🔒 تم إخفاء النتائج' : '🔓 تم إظهار النتائج', 'success')
+              } catch {
+                showToast('❌ فشل تحديث الإعداد', 'error')
+              } finally {
+                setTogglingResults(false)
+              }
+            }}
+            disabled={togglingResults}
+            className={`font-semibold px-4 py-2 rounded-xl transition text-sm border disabled:opacity-50 ${
+              resultsVisible
+                ? 'bg-emerald/10 hover:bg-emerald/20 text-emerald border-emerald/30'
+                : 'bg-red-50 hover:bg-red-100 text-red-600 border-red-200'
+            }`}
+          >
+            {togglingResults ? '...' : resultsVisible ? '👁️ النتائج ظاهرة' : '🚫 النتائج مخفية'}
+          </button>
+          <button
+            onClick={signOut}
+            className="bg-red-50 hover:bg-red-100 text-red-600 font-semibold px-4 py-2 rounded-xl transition text-sm border border-red-200"
+          >
+            تسجيل الخروج
+          </button>
+        </div>
       </div>
 
       {/* Quick stats */}

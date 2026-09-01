@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useCountries } from '../hooks/useCountries'
+import { useSettings } from '../hooks/useSettings'
 import { FlagImage } from '../components/FlagImage'
 
 const MEDAL_MAP: Record<number, { emoji: string; glow: string; bg: string }> = {
@@ -10,6 +11,7 @@ const MEDAL_MAP: Record<number, { emoji: string; glow: string; bg: string }> = {
 
 export function ResultsPage() {
   const { countries, loading } = useCountries()
+  const { resultsVisible, loading: settingsLoading } = useSettings()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [revealed, setRevealed] = useState(false)
 
@@ -58,12 +60,31 @@ export function ResultsPage() {
     setTimeout(() => setRevealed(true), 200)
   })
 
-  if (loading) {
+  if (loading || settingsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-royal-blue border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-slate-gray font-semibold">جاري التحميل...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!resultsVisible) {
+    return (
+      <div className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center px-4">
+        <div className="text-center animate-fade-in-up">
+          <span className="text-8xl block mb-6">🔒</span>
+          <h2 className="text-3xl font-black text-ink mb-3">النتائج غير متاحة حالياً</h2>
+          <p className="text-lg text-slate-gray max-w-md mx-auto">
+            سيتم الإعلان عن النتائج قريباً... ترقبوا!
+          </p>
+          <div className="mt-8 flex justify-center gap-3">
+            <span className="w-3 h-3 bg-royal-blue/30 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+            <span className="w-3 h-3 bg-royal-blue/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+            <span className="w-3 h-3 bg-royal-blue/70 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+          </div>
         </div>
       </div>
     )
