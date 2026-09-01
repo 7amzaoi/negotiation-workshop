@@ -14,7 +14,7 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 py-3">
         {/* Logo + Title */}
         <div className="flex items-center justify-center gap-3 mb-3">
-          <img src="/logo.webp" alt="شؤون الشباب" className="h-12 md:h-14 w-auto object-contain" />
+          <img src="/logo.webp" alt="شؤون الشباب" className="h-16 md:h-20 w-auto object-contain" />
           <div className="text-center">
             <h1 className="text-2xl md:text-3xl font-black text-royal-blue leading-tight">
               ورشة التفاوض السياسي
