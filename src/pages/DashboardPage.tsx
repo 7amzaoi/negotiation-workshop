@@ -5,7 +5,7 @@ import { useAgreements } from '../hooks/useAgreements'
 import { ProtectedRoute } from '../components/ProtectedRoute'
 import { showToast } from '../components/Toast'
 import { FlagImage } from '../components/FlagImage'
-import type { CountryWithAgreements } from '../types/database'
+import type { CountryWithAgreements, AgreementWithCountries } from '../types/database'
 
 function LoginForm() {
   const { signIn } = useAuth()
@@ -137,10 +137,178 @@ function PointsCard({ country, onUpdate }: { country: CountryWithAgreements; onU
   )
 }
 
+// --- Agreement archive card with inline edit ---
+function AgreementArchiveCard({
+  agreement,
+  countries: allCountries,
+  onDelete,
+  onUpdate,
+}: {
+  agreement: AgreementWithCountries
+  countries: CountryWithAgreements[]
+  onDelete: (id: string) => Promise<void>
+  onUpdate: (id: string, title: string, body: string, countryIds: string[]) => Promise<void>
+}) {
+  const [editing, setEditing] = useState(false)
+  const [editTitle, setEditTitle] = useState(agreement.title)
+  const [editBody, setEditBody] = useState(agreement.body)
+  const [editCountries, setEditCountries] = useState<string[]>(agreement.countries.map(c => c.id))
+  const [saving, setSaving] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+
+  const toggleCountry = (id: string) => {
+    setEditCountries(prev =>
+      prev.includes(id) ? prev.filter(cId => cId !== id) : [...prev, id]
+    )
+  }
+
+  const handleSave = async () => {
+    if (!editTitle.trim() || !editBody.trim() || editCountries.length === 0) {
+      showToast('❌ يرجى تعبئة جميع الحقول', 'error')
+      return
+    }
+    setSaving(true)
+    try {
+      await onUpdate(agreement.id, editTitle.trim(), editBody.trim(), editCountries)
+      showToast('✅ تم تحديث الاتفاقية', 'success')
+      setEditing(false)
+    } catch {
+      showToast('❌ فشل تحديث الاتفاقية', 'error')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    setDeleting(true)
+    try {
+      await onDelete(agreement.id)
+      showToast('🗑️ تم حذف الاتفاقية', 'success')
+    } catch {
+      showToast('❌ فشل حذف الاتفاقية', 'error')
+      setDeleting(false)
+      setConfirmDelete(false)
+    }
+  }
+
+  const formatDate = (dateStr: string) =>
+    new Date(dateStr).toLocaleDateString('ar-SA', {
+      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+    })
+
+  if (editing) {
+    return (
+      <div className="bg-surface rounded-xl border-2 border-royal-blue/30 p-4 shadow-sm">
+        <div className="flex items-center justify-between mb-3">
+          <h4 className="text-sm font-bold text-royal-blue">✏️ تعديل الاتفاقية</h4>
+          <button onClick={() => setEditing(false)} className="text-xs text-slate-gray hover:text-ink transition">
+            إلغاء ✕
+          </button>
+        </div>
+        <input
+          type="text"
+          value={editTitle}
+          onChange={e => setEditTitle(e.target.value)}
+          className="w-full bg-bg border border-gray-200 rounded-lg px-3 py-2 text-sm mb-2 focus:outline-none focus:border-royal-blue focus:ring-2 focus:ring-royal-blue/20 transition"
+          placeholder="عنوان الاتفاقية"
+        />
+        <textarea
+          value={editBody}
+          onChange={e => setEditBody(e.target.value)}
+          rows={3}
+          className="w-full bg-bg border border-gray-200 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:border-royal-blue focus:ring-2 focus:ring-royal-blue/20 transition resize-y"
+          placeholder="نص الاتفاقية"
+        />
+        <p className="text-xs font-semibold text-ink mb-1.5">الدول المشاركة:</p>
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {allCountries.map(c => {
+            const isSelected = editCountries.includes(c.id)
+            return (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => toggleCountry(c.id)}
+                className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border text-[11px] font-semibold transition-all
+                  ${isSelected ? 'border-royal-blue bg-royal-blue/10 text-royal-blue' : 'border-gray-200 bg-bg text-slate-gray'}`}
+              >
+                <FlagImage emoji={c.flag_emoji} size="sm" />
+                {c.name}
+              </button>
+            )
+          })}
+        </div>
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="w-full bg-royal-blue hover:bg-royal-blue/90 text-white font-bold py-2 rounded-lg transition text-sm disabled:opacity-50"
+        >
+          {saving ? 'جاري الحفظ...' : '💾 حفظ التعديلات'}
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="bg-surface rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between gap-3 mb-2">
+        <h4 className="font-bold text-ink text-sm leading-snug">{agreement.title}</h4>
+        <time className="text-[11px] text-slate-gray whitespace-nowrap ltr-safe shrink-0">{formatDate(agreement.created_at)}</time>
+      </div>
+      <p className="text-xs text-slate-gray leading-relaxed mb-2 line-clamp-2">{agreement.body}</p>
+      <div className="flex flex-wrap gap-1.5 mb-3">
+        {agreement.countries.map(c => (
+          <span key={c.id} className="inline-flex items-center gap-1 bg-royal-blue/5 text-ink text-[11px] font-semibold px-2 py-0.5 rounded-full">
+            <FlagImage emoji={c.flag_emoji} size="sm" />
+            {c.name}
+          </span>
+        ))}
+      </div>
+      <div className="flex items-center gap-2 border-t border-gray-100 pt-2">
+        <button
+          onClick={() => {
+            setEditTitle(agreement.title)
+            setEditBody(agreement.body)
+            setEditCountries(agreement.countries.map(c => c.id))
+            setEditing(true)
+          }}
+          className="flex-1 text-xs font-semibold text-royal-blue hover:bg-royal-blue/5 py-1.5 rounded-lg transition"
+        >
+          ✏️ تعديل
+        </button>
+        {confirmDelete ? (
+          <div className="flex-1 flex items-center gap-1">
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="flex-1 text-xs font-bold text-white bg-red-500 hover:bg-red-600 py-1.5 rounded-lg transition disabled:opacity-50"
+            >
+              {deleting ? '...' : 'تأكيد الحذف'}
+            </button>
+            <button
+              onClick={() => setConfirmDelete(false)}
+              className="text-xs text-slate-gray hover:text-ink py-1.5 px-2 transition"
+            >
+              إلغاء
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setConfirmDelete(true)}
+            className="flex-1 text-xs font-semibold text-red-500 hover:bg-red-50 py-1.5 rounded-lg transition"
+          >
+            🗑️ حذف
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function DashboardContent() {
   const { signOut } = useAuth()
   const { countries, loading: countriesLoading, updatePoints } = useCountries()
-  const { agreements, loading: agreementsLoading, createAgreement } = useAgreements()
+  const { agreements, loading: agreementsLoading, createAgreement, deleteAgreement, updateAgreement } = useAgreements()
 
   // New agreement form state
   const [title, setTitle] = useState('')
@@ -325,6 +493,38 @@ function DashboardContent() {
             )}
           </button>
         </form>
+      </section>
+
+      {/* Section C: Agreements Archive */}
+      <section className="mt-10">
+        <h2 className="text-xl font-bold text-ink mb-4 flex items-center gap-2">
+          <span>📜</span> أرشيف الاتفاقيات
+          <span className="text-sm font-normal text-slate-gray">({agreements.length})</span>
+        </h2>
+        {loading ? (
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="skeleton h-32 rounded-xl" />
+            ))}
+          </div>
+        ) : agreements.length === 0 ? (
+          <div className="bg-surface rounded-xl border border-gray-200 p-8 text-center">
+            <span className="text-4xl block mb-2">📭</span>
+            <p className="text-slate-gray font-semibold">لا توجد اتفاقيات بعد</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {agreements.map(agreement => (
+              <AgreementArchiveCard
+                key={agreement.id}
+                agreement={agreement}
+                countries={countries}
+                onDelete={deleteAgreement}
+                onUpdate={updateAgreement}
+              />
+            ))}
+          </div>
+        )}
       </section>
     </div>
   )

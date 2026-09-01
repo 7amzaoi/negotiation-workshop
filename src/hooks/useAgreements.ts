@@ -140,5 +140,62 @@ export function useAgreements() {
     return agreement
   }
 
-  return { agreements, loading, error, createAgreement, refetch: fetchAgreements, breakingNews, dismissBreakingNews }
+  const deleteAgreement = async (id: string) => {
+    // Delete join rows first (foreign key constraint)
+    const { error: joinError } = await supabase
+      .from('agreement_countries')
+      .delete()
+      .eq('agreement_id', id)
+
+    if (joinError) throw joinError
+
+    const { error: agError } = await supabase
+      .from('agreements')
+      .delete()
+      .eq('id', id)
+
+    if (agError) throw agError
+  }
+
+  const updateAgreement = async (
+    id: string,
+    title: string,
+    body: string,
+    countryIds: string[]
+  ) => {
+    // Update the agreement row
+    const { error: agError } = await supabase
+      .from('agreements')
+      .update({ title, body })
+      .eq('id', id)
+
+    if (agError) throw agError
+
+    // Replace join rows: delete old, insert new
+    const { error: delError } = await supabase
+      .from('agreement_countries')
+      .delete()
+      .eq('agreement_id', id)
+
+    if (delError) throw delError
+
+    if (countryIds.length > 0) {
+      const joinRows = countryIds.map(country_id => ({
+        agreement_id: id,
+        country_id,
+      }))
+
+      const { error: joinError } = await supabase
+        .from('agreement_countries')
+        .insert(joinRows)
+
+      if (joinError) throw joinError
+    }
+  }
+
+  return {
+    agreements, loading, error,
+    createAgreement, deleteAgreement, updateAgreement,
+    refetch: fetchAgreements, breakingNews, dismissBreakingNews,
+  }
 }
