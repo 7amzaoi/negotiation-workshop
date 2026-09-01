@@ -107,28 +107,30 @@ function PointsCard({ country, onUpdate }: { country: CountryWithAgreements; onU
   }
 
   return (
-    <div className="bg-surface rounded-xl border border-gray-200 p-4 shadow-sm">
-      <div className="flex items-center gap-2 mb-3">
-        <FlagImage emoji={country.flag_emoji} size="md" />
-        <span className="font-bold text-ink">{country.name}</span>
+    <div className="bg-surface rounded-xl border border-gray-200 p-3 shadow-sm overflow-hidden">
+      {/* Flag + Name */}
+      <div className="flex items-center gap-2 mb-2">
+        <FlagImage emoji={country.flag_emoji} size="sm" />
+        <span className="font-bold text-ink text-sm truncate">{country.name}</span>
       </div>
-      <div className="flex items-center gap-2">
+      {/* Input + Button */}
+      <div className="flex items-center gap-1.5">
         <input
           type="number"
           value={points}
           onChange={e => { setPoints(parseInt(e.target.value) || 0); setDirty(true) }}
-          className="flex-1 bg-bg border border-gray-200 rounded-lg px-3 py-2 text-center font-bold text-lg focus:outline-none focus:border-royal-blue focus:ring-2 focus:ring-royal-blue/20 transition ltr-safe"
+          className="w-0 flex-1 min-w-0 bg-bg border border-gray-200 rounded-lg px-2 py-1.5 text-center font-bold text-lg focus:outline-none focus:border-royal-blue focus:ring-2 focus:ring-royal-blue/20 transition ltr-safe"
           dir="ltr"
         />
         <button
           onClick={handleUpdate}
           disabled={saving || !dirty}
-          className="bg-emerald hover:bg-emerald/90 text-white font-bold px-4 py-2 rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed text-sm"
+          className="bg-emerald hover:bg-emerald/90 text-white font-bold px-3 py-1.5 rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed text-xs whitespace-nowrap shrink-0"
         >
           {saving ? '...' : 'تحديث'}
         </button>
       </div>
-      <p className="text-xs text-slate-gray mt-2 text-center">
+      <p className="text-[11px] text-slate-gray mt-1.5 text-center">
         الاتفاقيات: <span className="font-bold ltr-safe">{country.agreement_count}</span>
       </p>
     </div>
@@ -230,13 +232,13 @@ function DashboardContent() {
           <span>🏳️</span> تحديث نقاط الدول
         </h2>
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {Array.from({ length: 10 }).map((_, i) => (
-              <div key={i} className="skeleton h-36 rounded-xl" />
+              <div key={i} className="skeleton h-28 rounded-xl" />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {countries.map(country => (
               <PointsCard key={country.id} country={country} onUpdate={updatePoints} />
             ))}
@@ -282,7 +284,7 @@ function DashboardContent() {
                 <span className="text-royal-blue ms-2 ltr-safe">({selectedCountries.length} دولة)</span>
               )}
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+            <div className="flex flex-wrap gap-2">
               {countries.map(c => {
                 const isSelected = selectedCountries.includes(c.id)
                 return (
@@ -291,7 +293,7 @@ function DashboardContent() {
                     type="button"
                     onClick={() => toggleCountry(c.id)}
                     className={`
-                      flex items-center gap-2 px-3 py-2 rounded-xl border-2 text-sm font-semibold transition-all
+                      inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border-2 text-xs font-semibold transition-all
                       ${isSelected
                         ? 'border-royal-blue bg-royal-blue/10 text-royal-blue'
                         : 'border-gray-200 bg-bg text-slate-gray hover:border-lavender'
@@ -299,8 +301,8 @@ function DashboardContent() {
                     `}
                   >
                     <FlagImage emoji={c.flag_emoji} size="sm" />
-                    <span className="truncate">{c.name}</span>
-                    {isSelected && <span className="ms-auto ltr-safe">✓</span>}
+                    <span>{c.name}</span>
+                    {isSelected && <span className="ltr-safe">✓</span>}
                   </button>
                 )
               })}

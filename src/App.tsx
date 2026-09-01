@@ -9,7 +9,7 @@ import { DashboardPage } from './pages/DashboardPage'
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-bg">
+      <div className="min-h-screen bg-bg overflow-x-hidden">
         <ToastContainer />
         <Routes>
           {/* Dashboard has its own header/layout (login screen) */}
