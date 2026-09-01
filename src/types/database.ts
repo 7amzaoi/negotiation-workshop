@@ -3,6 +3,7 @@ export interface Country {
   name: string
   flag_emoji: string
   points: number
+  rating: string
   created_at: string
 }
 

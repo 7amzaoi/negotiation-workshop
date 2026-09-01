@@ -1,104 +1,226 @@
+import { useState } from 'react'
 import { useCountries } from '../hooks/useCountries'
-import { SkeletonRow } from '../components/SkeletonLoader'
 import { FlagImage } from '../components/FlagImage'
 
-const MEDAL_MAP: Record<number, { emoji: string; glow: string }> = {
-  1: { emoji: '🥇', glow: 'medal-glow-gold' },
-  2: { emoji: '🥈', glow: 'medal-glow-silver' },
-  3: { emoji: '🥉', glow: 'medal-glow-bronze' },
+const MEDAL_MAP: Record<number, { emoji: string; glow: string; bg: string }> = {
+  1: { emoji: '🥇', glow: 'medal-glow-gold', bg: 'from-gold/15 to-gold/5' },
+  2: { emoji: '🥈', glow: 'medal-glow-silver', bg: 'from-gray-300/20 to-gray-200/5' },
+  3: { emoji: '🥉', glow: 'medal-glow-bronze', bg: 'from-orange-400/15 to-orange-300/5' },
 }
 
 export function ResultsPage() {
   const { countries, loading } = useCountries()
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [revealed, setRevealed] = useState(false)
 
+  // Sort by points descending, then reverse for display (10th → 1st)
   const ranked = [...countries].sort((a, b) => b.points - a.points)
   const displayOrder = [...ranked].reverse()
 
+  const total = displayOrder.length
+  const currentCountry = displayOrder[currentIndex]
+  const currentRank = total - currentIndex
+  const medal = MEDAL_MAP[currentRank]
+  const isTopThree = currentRank <= 3
+  const isFirst = currentRank === 1
+  const isLast = currentIndex === total - 1
+
+  const handleNext = () => {
+    if (currentIndex < total - 1) {
+      setRevealed(false)
+      setTimeout(() => {
+        setCurrentIndex(prev => prev + 1)
+        setRevealed(true)
+      }, 300)
+    }
+  }
+
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      setRevealed(false)
+      setTimeout(() => {
+        setCurrentIndex(prev => prev - 1)
+        setRevealed(true)
+      }, 300)
+    }
+  }
+
+  const handleReset = () => {
+    setRevealed(false)
+    setTimeout(() => {
+      setCurrentIndex(0)
+      setRevealed(true)
+    }, 300)
+  }
+
+  // Trigger initial reveal
+  useState(() => {
+    setTimeout(() => setRevealed(true), 200)
+  })
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-royal-blue border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-slate-gray font-semibold">جاري التحميل...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!currentCountry) return null
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="text-center mb-10">
-        <h1 className="text-3xl md:text-4xl font-black text-royal-blue mb-2">
-          🏆 النتائج النهائية
-        </h1>
-        <p className="text-slate-gray">الترتيب من المركز العاشر إلى المركز الأول</p>
+    <div className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center px-4 py-8">
+      {/* Progress indicator */}
+      <div className="flex items-center gap-2 mb-6">
+        {displayOrder.map((_, i) => (
+          <div
+            key={i}
+            className={`rounded-full transition-all duration-300 ${
+              i < currentIndex
+                ? 'w-2 h-2 bg-royal-blue'
+                : i === currentIndex
+                ? 'w-3 h-3 bg-gold'
+                : 'w-2 h-2 bg-gray-300'
+            }`}
+          />
+        ))}
       </div>
 
-      {loading ? (
-        <div className="space-y-4">
-          {Array.from({ length: 10 }).map((_, i) => <SkeletonRow key={i} />)}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {displayOrder.map((country) => {
-            const rank = ranked.findIndex(c => c.id === country.id) + 1
-            const medal = MEDAL_MAP[rank]
-            const isTopThree = rank <= 3
+      {/* Rank label */}
+      <div className="mb-4 text-center">
+        <span className="text-sm text-slate-gray font-semibold">
+          {currentIndex + 1} / {total}
+        </span>
+      </div>
 
-            return (
-              <div
-                key={country.id}
-                className={`
-                  bg-surface rounded-2xl border-2 transition-all duration-300
-                  ${isTopThree
-                    ? `${medal.glow} ${rank === 1 ? 'scale-[1.03]' : rank === 2 ? 'scale-[1.02]' : 'scale-[1.01]'} border-${rank === 1 ? 'gold' : rank === 2 ? 'gray-400' : 'orange-400'} p-6 my-2`
-                    : 'border-gray-200 p-4'
-                  }
-                  ${rank === 1 ? 'bg-gradient-to-l from-gold/5 to-surface' : ''}
-                `}
-              >
-                <div className="flex items-center gap-4">
-                  {/* Rank number */}
-                  <div className={`
-                    flex items-center justify-center rounded-full font-black ltr-safe shrink-0
-                    ${isTopThree ? 'w-14 h-14 text-2xl' : 'w-10 h-10 text-lg'}
-                    ${rank === 1 ? 'bg-gold text-white'
-                      : rank === 2 ? 'bg-gray-400 text-white'
-                      : rank === 3 ? 'bg-orange-400 text-white'
-                      : 'bg-gray-100 text-slate-gray'}
-                  `}>
-                    {rank}
-                  </div>
+      {/* Country Card */}
+      <div
+        className={`
+          w-full max-w-lg transition-all duration-500
+          ${revealed ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95'}
+        `}
+      >
+        <div className={`
+          bg-surface rounded-3xl border-2 shadow-xl overflow-hidden
+          ${isFirst ? `${medal.glow} border-gold` : isTopThree ? `${medal!.glow} border-gray-300` : 'border-gray-200'}
+        `}>
+          {/* Rank header */}
+          <div className={`
+            py-4 px-6 text-center
+            ${isFirst
+              ? 'bg-gradient-to-b from-gold/20 to-transparent'
+              : isTopThree
+              ? `bg-gradient-to-b ${medal!.bg}`
+              : 'bg-gradient-to-b from-royal-blue/10 to-transparent'
+            }
+          `}>
+            <div className="flex items-center justify-center gap-3">
+              {medal && <span className="text-4xl">{medal.emoji}</span>}
+              <span className={`
+                font-black ltr-safe
+                ${isFirst ? 'text-6xl text-gold' : isTopThree ? 'text-5xl text-royal-blue' : 'text-4xl text-slate-gray'}
+              `}>
+                {currentRank}
+              </span>
+              {medal && <span className="text-4xl">{medal.emoji}</span>}
+            </div>
+            <p className="text-sm text-slate-gray mt-1 font-semibold">
+              {isFirst ? 'المركز الأول 👑' : `المركز ${currentRank}`}
+            </p>
+          </div>
 
-                  {/* Medal (top 3 only) */}
-                  {medal && (
-                    <span className="text-3xl ltr-safe shrink-0">{medal.emoji}</span>
-                  )}
-
-                  {/* Flag */}
-                  <div className="shrink-0">
-                    <FlagImage emoji={country.flag_emoji} size={isTopThree ? 'xl' : 'lg'} />
-                  </div>
-
-                  {/* Country name */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className={`font-bold text-ink ${isTopThree ? 'text-2xl' : 'text-lg'}`}>
-                      {country.name}
-                    </h3>
-                    {isTopThree && (
-                      <p className="text-sm text-slate-gray mt-1">
-                        {country.agreement_count} اتفاقية
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Points */}
-                  <div className={`
-                    font-black ltr-safe shrink-0
-                    ${rank === 1 ? 'text-4xl text-gold'
-                      : isTopThree ? 'text-2xl text-royal-blue'
-                      : 'text-xl text-slate-gray'}
-                  `}>
-                    {country.points}
-                    <span className={`${isTopThree ? 'text-sm' : 'text-xs'} font-semibold text-slate-gray ms-1`}>
-                      نقطة
-                    </span>
-                  </div>
-                </div>
+          {/* Flag + Info */}
+          <div className="p-8 text-center">
+            {/* Flag */}
+            <div className={`flex justify-center mb-5 ${isFirst ? 'animate-float' : ''}`}>
+              <div className={`
+                p-2 rounded-xl border shadow-md
+                ${isFirst ? 'border-gold/30 bg-gold/5' : 'border-gray-200 bg-gray-50'}
+              `}>
+                <FlagImage emoji={currentCountry.flag_emoji} size="xl" />
               </div>
-            )
-          })}
+            </div>
+
+            {/* Country name */}
+            <h2 className={`
+              font-black text-ink mb-3
+              ${isFirst ? 'text-4xl' : isTopThree ? 'text-3xl' : 'text-2xl'}
+            `}>
+              {currentCountry.name}
+            </h2>
+
+            {/* Points */}
+            <div className={`
+              inline-flex items-center gap-2 rounded-full px-6 py-2 mb-4
+              ${isFirst ? 'bg-gold/15' : 'bg-royal-blue/10'}
+            `}>
+              <span className="text-lg">⭐</span>
+              <span className={`
+                font-black ltr-safe
+                ${isFirst ? 'text-3xl text-gold' : 'text-2xl text-royal-blue'}
+              `}>
+                {currentCountry.points}
+              </span>
+              <span className="text-sm text-slate-gray font-semibold">نقطة</span>
+            </div>
+
+            {/* Agreements count */}
+            <div className="flex justify-center gap-4 mb-4">
+              <div className="flex items-center gap-1.5 bg-emerald/10 rounded-full px-4 py-1.5">
+                <span className="text-emerald">🤝</span>
+                <span className="text-emerald font-bold ltr-safe">{currentCountry.agreement_count}</span>
+                <span className="text-emerald/70 text-sm">اتفاقية</span>
+              </div>
+            </div>
+
+            {/* Rating (if exists) */}
+            {currentCountry.rating && (
+              <div className="mt-4 bg-bg rounded-xl p-4 border border-gray-200 text-right">
+                <p className="text-xs font-bold text-slate-gray mb-1">📝 تقييم الأداء:</p>
+                <p className="text-sm text-ink leading-relaxed whitespace-pre-wrap">{currentCountry.rating}</p>
+              </div>
+            )}
+          </div>
         </div>
-      )}
+      </div>
+
+      {/* Navigation buttons */}
+      <div className="flex items-center gap-4 mt-8">
+        <button
+          onClick={handlePrev}
+          disabled={currentIndex === 0}
+          className="flex items-center gap-2 bg-surface border border-gray-200 hover:border-royal-blue text-slate-gray hover:text-royal-blue font-bold px-6 py-3 rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-gray-200 disabled:hover:text-slate-gray"
+        >
+          <span className="ltr-safe">→</span>
+          <span>السابق</span>
+        </button>
+
+        {isLast ? (
+          <button
+            onClick={handleReset}
+            className="flex items-center gap-2 bg-gold hover:bg-gold/90 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+          >
+            <span>🔄</span>
+            <span>إعادة العرض</span>
+          </button>
+        ) : (
+          <button
+            onClick={handleNext}
+            className="flex items-center gap-2 bg-royal-blue hover:bg-royal-blue/90 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+          >
+            <span>التالي</span>
+            <span className="ltr-safe">←</span>
+          </button>
+        )}
+      </div>
+
+      {/* Keyboard hint */}
+      <p className="text-xs text-slate-gray/50 mt-4">
+        استخدم الأزرار للتنقل بين الدول
+      </p>
     </div>
   )
 }

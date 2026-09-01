@@ -1,14 +1,33 @@
+// Known emoji → ISO code
 const EMOJI_TO_CODE: Record<string, string> = {
-  '🇹🇷': 'tr',
-  '🇩🇪': 'de',
-  '🇫🇷': 'fr',
-  '🇺🇸': 'us',
-  '🇮🇹': 'it',
-  '🇪🇸': 'es',
-  '🇯🇵': 'jp',
-  '🇨🇳': 'cn',
-  '🇬🇧': 'gb',
+  '🇺🇸': 'us', '🇷🇺': 'ru', '🇸🇾': 'sy', '🇮🇶': 'iq',
+  '🇮🇱': 'il', '🇮🇷': 'ir', '🇹🇷': 'tr', '🇸🇦': 'sa',
+  '🇱🇧': 'lb', '🇩🇪': 'de', '🇫🇷': 'fr', '🇮🇹': 'it',
+  '🇪🇸': 'es', '🇯🇵': 'jp', '🇨🇳': 'cn', '🇬🇧': 'gb',
   '🇨🇦': 'ca',
+}
+
+// Flag emojis are made of Regional Indicator pairs (U+1F1E6..U+1F1FF).
+// Extract the 2-letter ISO code automatically from any flag emoji.
+function flagEmojiToCode(emoji: string): string | null {
+  const codePoints = [...emoji].map(c => c.codePointAt(0) || 0)
+  const regionIndicators = codePoints.filter(cp => cp >= 0x1F1E6 && cp <= 0x1F1FF)
+  if (regionIndicators.length === 2) {
+    return String.fromCharCode(regionIndicators[0] - 0x1F1E6 + 65, regionIndicators[1] - 0x1F1E6 + 65).toLowerCase()
+  }
+  return null
+}
+
+function resolveCode(emoji: string): string | null {
+  // Direct lookup
+  if (EMOJI_TO_CODE[emoji]) return EMOJI_TO_CODE[emoji]
+  // Auto-extract from any flag emoji
+  const extracted = flagEmojiToCode(emoji)
+  if (extracted) return extracted
+  // Try as 2-letter text (Windows renders flag emoji as e.g. "US", "RU")
+  const trimmed = emoji.trim().toUpperCase()
+  if (/^[A-Z]{2}$/.test(trimmed)) return trimmed.toLowerCase()
+  return null
 }
 
 interface FlagImageProps {
@@ -25,11 +44,19 @@ const SIZES = {
 }
 
 export function FlagImage({ emoji, size = 'md', className = '' }: FlagImageProps) {
-  const code = EMOJI_TO_CODE[emoji]
+  const code = resolveCode(emoji)
   const { width, imgWidth } = SIZES[size]
 
+  // QSD / unknown fallback
   if (!code) {
-    return <span className={`ltr-safe ${className}`} style={{ fontSize: width * 0.7 }}>{emoji}</span>
+    return (
+      <span
+        className={`inline-flex items-center justify-center rounded-sm bg-emerald/20 border border-emerald/30 shadow-sm ${className}`}
+        style={{ width, height: width * 0.75, fontSize: width * 0.4 }}
+      >
+        {emoji || '🏳️'}
+      </span>
+    )
   }
 
   return (
@@ -46,5 +73,5 @@ export function FlagImage({ emoji, size = 'md', className = '' }: FlagImageProps
 }
 
 export function getCountryCode(emoji: string): string {
-  return EMOJI_TO_CODE[emoji] || ''
+  return resolveCode(emoji) || ''
 }

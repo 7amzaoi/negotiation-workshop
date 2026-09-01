@@ -80,30 +80,58 @@ function LoginForm() {
   )
 }
 
-function PointsCard({ country, onUpdate }: { country: CountryWithAgreements; onUpdate: (id: string, points: number) => Promise<void> }) {
+function PointsCard({
+  country,
+  onUpdatePoints,
+  onUpdateRating,
+}: {
+  country: CountryWithAgreements
+  onUpdatePoints: (id: string, points: number) => Promise<void>
+  onUpdateRating: (id: string, rating: string) => Promise<void>
+}) {
   const [points, setPoints] = useState(country.points)
+  const [rating, setRating] = useState(country.rating || '')
   const [saving, setSaving] = useState(false)
-  const [dirty, setDirty] = useState(false)
+  const [savingRating, setSavingRating] = useState(false)
+  const [dirtyPoints, setDirtyPoints] = useState(false)
+  const [dirtyRating, setDirtyRating] = useState(false)
 
   // Sync from realtime only when user hasn't edited locally
   useEffect(() => {
-    if (!dirty && !saving) {
-      setPoints(country.points)
-    }
-  }, [country.points, dirty, saving])
+    if (!dirtyPoints && !saving) setPoints(country.points)
+  }, [country.points, dirtyPoints, saving])
 
-  const handleUpdate = async () => {
+  useEffect(() => {
+    if (!dirtyRating && !savingRating) setRating(country.rating || '')
+  }, [country.rating, dirtyRating, savingRating])
+
+  const handleUpdatePoints = async () => {
     setSaving(true)
     try {
-      await onUpdate(country.id, points)
+      await onUpdatePoints(country.id, points)
       showToast(`✅ تم تحديث نقاط ${country.name}`, 'success')
-      setDirty(false)
+      setDirtyPoints(false)
     } catch {
       showToast(`❌ فشل تحديث نقاط ${country.name}`, 'error')
-      setPoints(country.points) // revert
-      setDirty(false)
+      setPoints(country.points)
+      setDirtyPoints(false)
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleUpdateRating = async () => {
+    setSavingRating(true)
+    try {
+      await onUpdateRating(country.id, rating)
+      showToast(`✅ تم حفظ تقييم ${country.name}`, 'success')
+      setDirtyRating(false)
+    } catch {
+      showToast(`❌ فشل حفظ تقييم ${country.name}`, 'error')
+      setRating(country.rating || '')
+      setDirtyRating(false)
+    } finally {
+      setSavingRating(false)
     }
   }
 
@@ -114,24 +142,43 @@ function PointsCard({ country, onUpdate }: { country: CountryWithAgreements; onU
         <FlagImage emoji={country.flag_emoji} size="sm" />
         <span className="font-bold text-ink text-sm truncate">{country.name}</span>
       </div>
-      {/* Input + Button */}
-      <div className="flex items-center gap-1.5">
+      {/* Points: Input + Button */}
+      <div className="flex items-center gap-1.5 mb-2">
         <input
           type="number"
           value={points}
-          onChange={e => { setPoints(parseInt(e.target.value) || 0); setDirty(true) }}
+          onChange={e => { setPoints(parseInt(e.target.value) || 0); setDirtyPoints(true) }}
           className="w-0 flex-1 min-w-0 bg-bg border border-gray-200 rounded-lg px-2 py-1.5 text-center font-bold text-lg focus:outline-none focus:border-royal-blue focus:ring-2 focus:ring-royal-blue/20 transition ltr-safe"
           dir="ltr"
         />
         <button
-          onClick={handleUpdate}
-          disabled={saving || !dirty}
+          onClick={handleUpdatePoints}
+          disabled={saving || !dirtyPoints}
           className="bg-emerald hover:bg-emerald/90 text-white font-bold px-3 py-1.5 rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed text-xs whitespace-nowrap shrink-0"
         >
           {saving ? '...' : 'تحديث'}
         </button>
       </div>
-      <p className="text-[11px] text-slate-gray mt-1.5 text-center">
+      {/* Rating textarea */}
+      <div className="mb-1.5">
+        <textarea
+          value={rating}
+          onChange={e => { setRating(e.target.value); setDirtyRating(true) }}
+          placeholder="اكتب تقييم الدولة..."
+          rows={2}
+          className="w-full bg-bg border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-royal-blue focus:ring-2 focus:ring-royal-blue/20 transition resize-y"
+        />
+        {dirtyRating && (
+          <button
+            onClick={handleUpdateRating}
+            disabled={savingRating}
+            className="w-full mt-1 bg-lavender hover:bg-lavender/90 text-white font-bold py-1 rounded-lg transition disabled:opacity-40 text-[11px]"
+          >
+            {savingRating ? '...' : '💾 حفظ التقييم'}
+          </button>
+        )}
+      </div>
+      <p className="text-[11px] text-slate-gray text-center">
         الاتفاقيات: <span className="font-bold ltr-safe">{country.agreement_count}</span>
       </p>
     </div>
@@ -308,7 +355,7 @@ function AgreementArchiveCard({
 
 function DashboardContent() {
   const { signOut } = useAuth()
-  const { countries, loading: countriesLoading, updatePoints } = useCountries()
+  const { countries, loading: countriesLoading, updatePoints, updateRating } = useCountries()
   const { agreements, loading: agreementsLoading, createAgreement, deleteAgreement, updateAgreement } = useAgreements()
 
   // New agreement form state
@@ -409,7 +456,7 @@ function DashboardContent() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {countries.map(country => (
-              <PointsCard key={country.id} country={country} onUpdate={updatePoints} />
+              <PointsCard key={country.id} country={country} onUpdatePoints={updatePoints} onUpdateRating={updateRating} />
             ))}
           </div>
         )}

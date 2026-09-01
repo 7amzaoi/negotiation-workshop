@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Migration scripts (contain credentials)
+update-countries.mjs
+add-rating-column.mjs

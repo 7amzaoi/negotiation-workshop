@@ -3,16 +3,16 @@ import { supabase, supabaseConfigured } from '../lib/supabase'
 import type { CountryWithAgreements, Country, AgreementCountry } from '../types/database'
 
 const DEMO_COUNTRIES: CountryWithAgreements[] = [
-  { id: '1', name: 'تركيا', flag_emoji: '🇹🇷', points: 0, created_at: '', agreement_count: 0 },
-  { id: '2', name: 'ألمانيا', flag_emoji: '🇩🇪', points: 0, created_at: '', agreement_count: 0 },
-  { id: '3', name: 'فرنسا', flag_emoji: '🇫🇷', points: 0, created_at: '', agreement_count: 0 },
-  { id: '4', name: 'الولايات المتحدة', flag_emoji: '🇺🇸', points: 0, created_at: '', agreement_count: 0 },
-  { id: '5', name: 'إيطاليا', flag_emoji: '🇮🇹', points: 0, created_at: '', agreement_count: 0 },
-  { id: '6', name: 'إسبانيا', flag_emoji: '🇪🇸', points: 0, created_at: '', agreement_count: 0 },
-  { id: '7', name: 'اليابان', flag_emoji: '🇯🇵', points: 0, created_at: '', agreement_count: 0 },
-  { id: '8', name: 'الصين', flag_emoji: '🇨🇳', points: 0, created_at: '', agreement_count: 0 },
-  { id: '9', name: 'بريطانيا', flag_emoji: '🇬🇧', points: 0, created_at: '', agreement_count: 0 },
-  { id: '10', name: 'كندا', flag_emoji: '🇨🇦', points: 0, created_at: '', agreement_count: 0 },
+  { id: '1', name: 'أميركا', flag_emoji: '🇺🇸', points: 0, rating: '', created_at: '', agreement_count: 0 },
+  { id: '2', name: 'روسيا', flag_emoji: '🇷🇺', points: 0, rating: '', created_at: '', agreement_count: 0 },
+  { id: '3', name: 'سوريا', flag_emoji: '🇸🇾', points: 0, rating: '', created_at: '', agreement_count: 0 },
+  { id: '4', name: 'العراق', flag_emoji: '🇮🇶', points: 0, rating: '', created_at: '', agreement_count: 0 },
+  { id: '5', name: 'قسد', flag_emoji: '⚔️', points: 0, rating: '', created_at: '', agreement_count: 0 },
+  { id: '6', name: 'اسرائيل', flag_emoji: '🇮🇱', points: 0, rating: '', created_at: '', agreement_count: 0 },
+  { id: '7', name: 'ايران', flag_emoji: '🇮🇷', points: 0, rating: '', created_at: '', agreement_count: 0 },
+  { id: '8', name: 'تركيا', flag_emoji: '🇹🇷', points: 0, rating: '', created_at: '', agreement_count: 0 },
+  { id: '9', name: 'السعودية', flag_emoji: '🇸🇦', points: 0, rating: '', created_at: '', agreement_count: 0 },
+  { id: '10', name: 'لبنان', flag_emoji: '🇱🇧', points: 0, rating: '', created_at: '', agreement_count: 0 },
 ]
 
 export function useCountries() {
@@ -52,6 +52,7 @@ export function useCountries() {
 
       const enriched: CountryWithAgreements[] = allCountries.map(c => ({
         ...c,
+        rating: c.rating || '',
         agreement_count: countMap.get(c.id) || 0,
       }))
 
@@ -93,5 +94,14 @@ export function useCountries() {
     if (error) throw error
   }
 
-  return { countries, loading, error, updatePoints, refetch: fetchCountries }
+  const updateRating = async (countryId: string, rating: string) => {
+    const { error } = await supabase
+      .from('countries')
+      .update({ rating })
+      .eq('id', countryId)
+
+    if (error) throw error
+  }
+
+  return { countries, loading, error, updatePoints, updateRating, refetch: fetchCountries }
 }
