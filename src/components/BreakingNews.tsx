@@ -7,10 +7,10 @@ interface BreakingNewsProps {
   onDismiss: () => void
 }
 
-// Scroll animation = 20s, entrance = 0.5s, total ≈ 20.5s
-// Safety timeout = 23s (enough margin over animation)
+// Scroll animation = 12s per loop, runs infinite
+// Safety timeout = 60s (allows ~5 loops before auto-dismiss)
 const SCROLL_DELAY = 500
-const SAFETY_TIMEOUT = 23000
+const SAFETY_TIMEOUT = 60000
 
 export function BreakingNews({ agreement, onDismiss }: BreakingNewsProps) {
   const [visible, setVisible] = useState(true)
