@@ -23,7 +23,7 @@ export function BreakingNews({ agreement, onDismiss }: BreakingNewsProps) {
     // Start scrolling after entrance flash
     const scrollTimer = setTimeout(() => setScrolling(true), 600)
     // Safety auto-dismiss (in case animation end doesn't fire)
-    const safetyTimer = setTimeout(dismiss, 30000)
+    const safetyTimer = setTimeout(dismiss, 15000)
     return () => {
       clearTimeout(scrollTimer)
       clearTimeout(safetyTimer)

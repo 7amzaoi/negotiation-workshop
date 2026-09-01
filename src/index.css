@@ -84,7 +84,7 @@ body {
 }
 
 .ticker-scroll {
-  animation: ticker-scroll 25s linear forwards;
+  animation: ticker-scroll 14s linear forwards;
 }
 
 .ticker-enter {
