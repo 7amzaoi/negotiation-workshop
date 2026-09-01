@@ -31,6 +31,7 @@ function LoginForm() {
     <div className="min-h-screen flex items-center justify-center bg-bg px-4">
       <div className="bg-surface rounded-2xl border border-gray-200 shadow-xl p-8 w-full max-w-md">
         <div className="text-center mb-6">
+          <img src="/logo.webp" alt="شؤون الشباب" className="h-16 mx-auto mb-3" />
           <h1 className="text-2xl font-black text-royal-blue mb-1">🔐 لوحة التحكم</h1>
           <p className="text-sm text-slate-gray">سجّل دخولك لإدارة الورشة</p>
         </div>
