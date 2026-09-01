@@ -70,10 +70,10 @@ export function BreakingNews({ agreement, onDismiss }: BreakingNewsProps) {
                 <span className="text-red-300">|</span>
 
                 {/* Countries with flags */}
-                <span className="flex items-center gap-2">
+                <span className="flex items-center gap-4">
                   <span className="text-yellow-300 font-bold">الدول:</span>
                   {agreement.countries.map(c => (
-                    <span key={c.id} className="inline-flex items-center gap-1">
+                    <span key={c.id} className="inline-flex items-center gap-1.5 mx-1">
                       <FlagImage emoji={c.flag_emoji} size="sm" />
                       <span>{c.name}</span>
                     </span>
