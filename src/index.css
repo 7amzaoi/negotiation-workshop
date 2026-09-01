@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+@theme {
+  --color-royal-blue: #1E33D6;
+  --color-emerald: #14B26B;
+  --color-lavender: #6E7CE0;
+  --color-ink: #16181D;
+  --color-slate-gray: #6B7280;
+  --color-bg: #FAFAFA;
+  --color-surface: #FFFFFF;
+  --color-gold: #D4AF37;
+
+  --font-cairo: "Cairo", "Segoe UI", Tahoma, sans-serif;
+  --font-inter: "Inter", "Cairo", sans-serif;
+}
+
+body {
+  font-family: var(--font-cairo);
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  margin: 0;
+  padding: 0;
+  direction: rtl;
+}
+
+.ltr-safe {
+  direction: ltr;
+  unicode-bidi: embed;
+}
+
+.animate-count {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+@keyframes slideInRTL {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOutRTL {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-100%); opacity: 0; }
+}
+
+.toast-enter { animation: slideInRTL 0.3s ease-out; }
+.toast-exit { animation: slideOutRTL 0.3s ease-in; }
+
+.medal-glow-gold {
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.4), 0 0 60px rgba(212, 175, 55, 0.2);
+}
+.medal-glow-silver {
+  box-shadow: 0 0 20px rgba(192, 192, 192, 0.4);
+}
+.medal-glow-bronze {
+  box-shadow: 0 0 20px rgba(205, 127, 50, 0.4);
+}
