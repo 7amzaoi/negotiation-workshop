@@ -11,7 +11,7 @@ import { FlagImage } from '../components/FlagImage'
 import { BreakingNews } from '../components/BreakingNews'
 import { SkeletonCard, SkeletonStat } from '../components/SkeletonLoader'
 
-const CHART_COLORS = ['#1E33D6', '#14B26B', '#6E7CE0', '#D4AF37', '#E74C3C', '#3498DB', '#9B59B6', '#F39C12', '#1ABC9C', '#E67E22']
+const CHART_COLORS = ['#3B5323', '#8B7D3C', '#5E6B4E', '#A67C00', '#6B4226', '#4A5D3B', '#7A6B3A', '#556B2F', '#8B8B6E', '#704214']
 
 export function HomePage() {
   const { countries, loading: countriesLoading } = useCountries()

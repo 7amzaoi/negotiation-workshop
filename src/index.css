@@ -1,14 +1,15 @@
 @import "tailwindcss";
 
 @theme {
-  --color-royal-blue: #1E33D6;
-  --color-emerald: #14B26B;
-  --color-lavender: #6E7CE0;
-  --color-ink: #16181D;
-  --color-slate-gray: #6B7280;
-  --color-bg: #FAFAFA;
-  --color-surface: #FFFFFF;
-  --color-gold: #D4AF37;
+  /* Military-derived palette */
+  --color-royal-blue: #3B5323;      /* Army olive green — primary */
+  --color-emerald: #8B7D3C;         /* Dark khaki/sand — secondary */
+  --color-lavender: #5E6B4E;        /* Sage camo green — accent */
+  --color-ink: #1C2118;             /* Dark olive black — text */
+  --color-slate-gray: #6B7264;      /* Olive gray — muted text */
+  --color-bg: #F3F1EA;              /* Sand cream — background */
+  --color-surface: #FEFCF7;         /* Warm white — cards */
+  --color-gold: #A67C00;            /* Brass — medals & highlights */
 
   --font-cairo: "Cairo", "Segoe UI", Tahoma, sans-serif;
   --font-inter: "Inter", "Cairo", sans-serif;
@@ -38,7 +39,7 @@ body {
 }
 
 .skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, #e8e5dc 25%, #d9d5c9 50%, #e8e5dc 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 8px;
@@ -58,13 +59,13 @@ body {
 .toast-exit { animation: slideOutRTL 0.3s ease-in; }
 
 .medal-glow-gold {
-  box-shadow: 0 0 30px rgba(212, 175, 55, 0.4), 0 0 60px rgba(212, 175, 55, 0.2);
+  box-shadow: 0 0 30px rgba(166, 124, 0, 0.45), 0 0 60px rgba(166, 124, 0, 0.2);
 }
 .medal-glow-silver {
-  box-shadow: 0 0 20px rgba(192, 192, 192, 0.4);
+  box-shadow: 0 0 20px rgba(160, 165, 150, 0.5);
 }
 .medal-glow-bronze {
-  box-shadow: 0 0 20px rgba(205, 127, 50, 0.4);
+  box-shadow: 0 0 20px rgba(140, 100, 40, 0.45);
 }
 
 /* Breaking News Ticker */
