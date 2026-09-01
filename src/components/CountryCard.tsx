@@ -16,8 +16,12 @@ export function CountryCard({ country, agreements }: CountryCardProps) {
   const displayedAgreements = countryAgreements.slice(0, 3)
   const remainingCount = countryAgreements.length - 3
 
+  // Calculate progress relative to a reasonable max (100 or highest points)
+  const maxPointsGuess = 100
+  const progressPct = Math.min((country.points / maxPointsGuess) * 100, 100)
+
   return (
-    <div className="bg-surface rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
+    <div className="bg-surface rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group hover:-translate-y-1">
       {/* Top color accent bar */}
       <div className="h-1.5 bg-gradient-to-l from-royal-blue to-emerald" />
 
@@ -31,13 +35,22 @@ export function CountryCard({ country, agreements }: CountryCardProps) {
         <h3 className="text-lg font-bold text-ink leading-tight">{country.name}</h3>
       </div>
 
-      {/* Stats row */}
-      <div className="flex justify-center gap-3 px-4 pb-4">
-        <div className="flex items-center gap-1.5 bg-emerald/10 rounded-full px-3 py-1.5">
-          <span className="text-emerald text-sm">⭐</span>
-          <span className="text-emerald font-black text-sm ltr-safe">{country.points}</span>
-          <span className="text-emerald/70 text-xs font-semibold">نقطة</span>
+      {/* Points progress bar */}
+      <div className="px-4 pb-2">
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-xs font-semibold text-slate-gray">النقاط</span>
+          <span className="text-xs font-black text-emerald ltr-safe">{country.points}</span>
         </div>
+        <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+          <div
+            className="h-full rounded-full bg-gradient-to-l from-emerald to-royal-blue animate-fill"
+            style={{ width: `${progressPct}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Stats row */}
+      <div className="flex justify-center gap-3 px-4 pb-4 pt-2">
         <div className="flex items-center gap-1.5 bg-royal-blue/10 rounded-full px-3 py-1.5">
           <span className="text-royal-blue text-sm">🤝</span>
           <span className="text-royal-blue font-black text-sm ltr-safe">{country.agreement_count}</span>

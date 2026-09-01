@@ -95,3 +95,80 @@ body {
 .breaking-pulse {
   animation: breaking-pulse 1s ease-in-out infinite;
 }
+
+/* === Homepage enhancements === */
+
+/* Live pulse dot */
+@keyframes live-ping {
+  0%   { transform: scale(1); opacity: 1; }
+  75%  { transform: scale(2.2); opacity: 0; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+.live-ping {
+  animation: live-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Fade-in-up for cards */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out both;
+}
+
+/* Slide in from right (RTL) */
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(-30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-right {
+  animation: slideInRight 0.6s ease-out both;
+}
+
+/* Scale pop for podium */
+@keyframes popIn {
+  0%   { opacity: 0; transform: scale(0.6); }
+  70%  { transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.animate-pop-in {
+  animation: popIn 0.5s ease-out both;
+}
+
+/* Subtle float for leading country */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Count up number animation */
+@keyframes countPulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.animate-count-pulse {
+  animation: countPulse 0.4s ease-out;
+}
+
+/* Progress bar fill */
+@keyframes fillBar {
+  from { width: 0%; }
+}
+.animate-fill {
+  animation: fillBar 1s ease-out both;
+}
+
+/* Gradient shine sweep */
+@keyframes shine {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.animate-shine {
+  background-size: 200% auto;
+  animation: shine 3s linear infinite;
+}
