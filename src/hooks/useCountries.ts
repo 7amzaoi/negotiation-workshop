@@ -1,8 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase, supabaseConfigured } from '../lib/supabase'
-import type { CountryWithAgreements } from '../types/database'
+import type { CountryWithAgreements, Country, AgreementCountry } from '../types/database'
 
-// Demo data shown when Supabase is not yet connected
 const DEMO_COUNTRIES: CountryWithAgreements[] = [
   { id: '1', name: 'تركيا', flag_emoji: '🇹🇷', points: 0, created_at: '', agreement_count: 0 },
   { id: '2', name: 'ألمانيا', flag_emoji: '🇩🇪', points: 0, created_at: '', agreement_count: 0 },
@@ -43,12 +42,15 @@ export function useCountries() {
 
       if (joinError) throw joinError
 
+      const allCountries = (countriesData || []) as Country[]
+      const allJoins = (joinData || []) as Pick<AgreementCountry, 'country_id'>[]
+
       const countMap = new Map<string, number>()
-      joinData?.forEach(row => {
+      allJoins.forEach(row => {
         countMap.set(row.country_id, (countMap.get(row.country_id) || 0) + 1)
       })
 
-      const enriched: CountryWithAgreements[] = (countriesData || []).map(c => ({
+      const enriched: CountryWithAgreements[] = allCountries.map(c => ({
         ...c,
         agreement_count: countMap.get(c.id) || 0,
       }))

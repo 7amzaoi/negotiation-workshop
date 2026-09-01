@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase, supabaseConfigured } from '../lib/supabase'
-import type { AgreementWithCountries, Country } from '../types/database'
+import type { AgreementWithCountries, Agreement, Country, AgreementCountry } from '../types/database'
 
 export function useAgreements() {
   const [agreements, setAgreements] = useState<AgreementWithCountries[]>([])
@@ -34,11 +34,15 @@ export function useAgreements() {
 
       if (cError) throw cError
 
+      const allAgreements = (agreementsData || []) as Agreement[]
+      const allJoins = (joinData || []) as AgreementCountry[]
+      const allCountries = (countriesData || []) as Country[]
+
       const countriesMap = new Map<string, Country>()
-      countriesData?.forEach(c => countriesMap.set(c.id, c))
+      allCountries.forEach(c => countriesMap.set(c.id, c))
 
       const agreementCountriesMap = new Map<string, Country[]>()
-      joinData?.forEach(row => {
+      allJoins.forEach(row => {
         const country = countriesMap.get(row.country_id)
         if (country) {
           const list = agreementCountriesMap.get(row.agreement_id) || []
@@ -47,7 +51,7 @@ export function useAgreements() {
         }
       })
 
-      const enriched: AgreementWithCountries[] = (agreementsData || []).map(a => ({
+      const enriched: AgreementWithCountries[] = allAgreements.map(a => ({
         ...a,
         countries: agreementCountriesMap.get(a.id) || [],
       }))
@@ -86,13 +90,15 @@ export function useAgreements() {
     body: string,
     countryIds: string[]
   ) => {
-    const { data: agreement, error: agError } = await supabase
+    const { data, error: agError } = await supabase
       .from('agreements')
       .insert({ title, body })
       .select()
       .single()
 
     if (agError) throw agError
+
+    const agreement = data as Agreement
 
     if (countryIds.length > 0) {
       const joinRows = countryIds.map(country_id => ({

@@ -7,7 +7,7 @@ import { useCountries } from '../hooks/useCountries'
 import { useAgreements } from '../hooks/useAgreements'
 import { CountryCard } from '../components/CountryCard'
 import { StatCard } from '../components/StatCard'
-import { SkeletonCard, SkeletonStat, SkeletonChart } from '../components/SkeletonLoader'
+import { SkeletonCard, SkeletonStat } from '../components/SkeletonLoader'
 
 const CHART_COLORS = ['#1E33D6', '#14B26B', '#6E7CE0', '#D4AF37', '#E74C3C', '#3498DB', '#9B59B6', '#F39C12', '#1ABC9C', '#E67E22']
 
@@ -150,7 +150,7 @@ export function HomePage() {
                       borderRadius: '8px',
                       fontFamily: 'Cairo',
                     }}
-                    formatter={(value: number) => [`${value}%`, 'نسبة المشاركة']}
+                    formatter={(value) => [`${value}%`, 'نسبة المشاركة']}
                   />
                 </RadialBarChart>
               </ResponsiveContainer>
