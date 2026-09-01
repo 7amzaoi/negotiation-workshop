@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAgreements } from '../hooks/useAgreements'
 import { useCountries } from '../hooks/useCountries'
 import { SkeletonRow } from '../components/SkeletonLoader'
+import { FlagImage } from '../components/FlagImage'
 
 export function AgreementsPage() {
   const { agreements, loading } = useAgreements()
@@ -102,9 +103,9 @@ export function AgreementsPage() {
                   {agreement.countries.map(c => (
                     <span
                       key={c.id}
-                      className="inline-flex items-center gap-1 bg-royal-blue/5 text-ink text-xs font-semibold px-2.5 py-1 rounded-full"
+                      className="inline-flex items-center gap-1.5 bg-royal-blue/5 text-ink text-xs font-semibold px-2.5 py-1 rounded-full"
                     >
-                      <span className="ltr-safe">{c.flag_emoji}</span>
+                      <FlagImage emoji={c.flag_emoji} size="sm" />
                       {c.name}
                     </span>
                   ))}

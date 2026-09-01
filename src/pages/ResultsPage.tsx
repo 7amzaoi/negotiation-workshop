@@ -1,16 +1,16 @@
 import { useCountries } from '../hooks/useCountries'
 import { SkeletonRow } from '../components/SkeletonLoader'
+import { FlagImage } from '../components/FlagImage'
 
-const MEDAL_MAP: Record<number, { emoji: string; glow: string; scale: string }> = {
-  1: { emoji: '🥇', glow: 'medal-glow-gold', scale: 'scale-110' },
-  2: { emoji: '🥈', glow: 'medal-glow-silver', scale: 'scale-105' },
-  3: { emoji: '🥉', glow: 'medal-glow-bronze', scale: 'scale-102' },
+const MEDAL_MAP: Record<number, { emoji: string; glow: string }> = {
+  1: { emoji: '🥇', glow: 'medal-glow-gold' },
+  2: { emoji: '🥈', glow: 'medal-glow-silver' },
+  3: { emoji: '🥉', glow: 'medal-glow-bronze' },
 }
 
 export function ResultsPage() {
   const { countries, loading } = useCountries()
 
-  // Sort by points descending, then reverse for dramatic 10 → 1 build-up
   const ranked = [...countries].sort((a, b) => b.points - a.points)
   const displayOrder = [...ranked].reverse()
 
@@ -40,7 +40,7 @@ export function ResultsPage() {
                 className={`
                   bg-surface rounded-2xl border-2 transition-all duration-300
                   ${isTopThree
-                    ? `${medal.glow} ${medal.scale} border-${rank === 1 ? 'gold' : rank === 2 ? 'gray-400' : 'orange-400'} p-6 my-2`
+                    ? `${medal.glow} ${rank === 1 ? 'scale-[1.03]' : rank === 2 ? 'scale-[1.02]' : 'scale-[1.01]'} border-${rank === 1 ? 'gold' : rank === 2 ? 'gray-400' : 'orange-400'} p-6 my-2`
                     : 'border-gray-200 p-4'
                   }
                   ${rank === 1 ? 'bg-gradient-to-l from-gold/5 to-surface' : ''}
@@ -49,37 +49,28 @@ export function ResultsPage() {
                 <div className="flex items-center gap-4">
                   {/* Rank number */}
                   <div className={`
-                    flex items-center justify-center rounded-full font-black ltr-safe
-                    ${isTopThree
-                      ? 'w-14 h-14 text-2xl'
-                      : 'w-10 h-10 text-lg'
-                    }
-                    ${rank === 1
-                      ? 'bg-gold text-white'
-                      : rank === 2
-                        ? 'bg-gray-400 text-white'
-                        : rank === 3
-                          ? 'bg-orange-400 text-white'
-                          : 'bg-gray-100 text-slate-gray'
-                    }
+                    flex items-center justify-center rounded-full font-black ltr-safe shrink-0
+                    ${isTopThree ? 'w-14 h-14 text-2xl' : 'w-10 h-10 text-lg'}
+                    ${rank === 1 ? 'bg-gold text-white'
+                      : rank === 2 ? 'bg-gray-400 text-white'
+                      : rank === 3 ? 'bg-orange-400 text-white'
+                      : 'bg-gray-100 text-slate-gray'}
                   `}>
                     {rank}
                   </div>
 
                   {/* Medal (top 3 only) */}
                   {medal && (
-                    <span className={`text-${isTopThree ? '4xl' : '2xl'} ltr-safe`}>
-                      {medal.emoji}
-                    </span>
+                    <span className="text-3xl ltr-safe shrink-0">{medal.emoji}</span>
                   )}
 
                   {/* Flag */}
-                  <span className={`${isTopThree ? 'text-5xl' : 'text-3xl'} ltr-safe`}>
-                    {country.flag_emoji}
-                  </span>
+                  <div className="shrink-0">
+                    <FlagImage emoji={country.flag_emoji} size={isTopThree ? 'xl' : 'lg'} />
+                  </div>
 
                   {/* Country name */}
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <h3 className={`font-bold text-ink ${isTopThree ? 'text-2xl' : 'text-lg'}`}>
                       {country.name}
                     </h3>
@@ -92,13 +83,10 @@ export function ResultsPage() {
 
                   {/* Points */}
                   <div className={`
-                    font-black ltr-safe
-                    ${rank === 1
-                      ? 'text-4xl text-gold'
-                      : isTopThree
-                        ? 'text-2xl text-royal-blue'
-                        : 'text-xl text-slate-gray'
-                    }
+                    font-black ltr-safe shrink-0
+                    ${rank === 1 ? 'text-4xl text-gold'
+                      : isTopThree ? 'text-2xl text-royal-blue'
+                      : 'text-xl text-slate-gray'}
                   `}>
                     {country.points}
                     <span className={`${isTopThree ? 'text-sm' : 'text-xs'} font-semibold text-slate-gray ms-1`}>

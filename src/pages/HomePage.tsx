@@ -7,6 +7,7 @@ import { useCountries } from '../hooks/useCountries'
 import { useAgreements } from '../hooks/useAgreements'
 import { CountryCard } from '../components/CountryCard'
 import { StatCard } from '../components/StatCard'
+import { FlagImage } from '../components/FlagImage'
 import { SkeletonCard, SkeletonStat } from '../components/SkeletonLoader'
 
 const CHART_COLORS = ['#1E33D6', '#14B26B', '#6E7CE0', '#D4AF37', '#E74C3C', '#3498DB', '#9B59B6', '#F39C12', '#1ABC9C', '#E67E22']
@@ -26,7 +27,7 @@ export function HomePage() {
   const barChartData = [...countries]
     .sort((a, b) => b.agreement_count - a.agreement_count)
     .map(c => ({
-      name: `${c.flag_emoji} ${c.name}`,
+      name: c.name,
       الاتفاقيات: c.agreement_count,
     }))
 
@@ -35,7 +36,7 @@ export function HomePage() {
   const radialData = [...countries]
     .sort((a, b) => b.agreement_count - a.agreement_count)
     .map((c, i) => ({
-      name: `${c.flag_emoji} ${c.name}`,
+      name: c.name,
       value: Math.round((c.agreement_count / maxAgreements) * 100),
       fill: CHART_COLORS[i % CHART_COLORS.length],
     }))
@@ -54,13 +55,23 @@ export function HomePage() {
               <StatCard
                 icon="🏆"
                 label="الدولة المتصدرة"
-                value={leadingCountry ? `${leadingCountry.flag_emoji} ${leadingCountry.name}` : '—'}
+                value={leadingCountry ? (
+                  <span className="inline-flex items-center gap-1.5">
+                    <FlagImage emoji={leadingCountry.flag_emoji} size="sm" />
+                    {leadingCountry.name}
+                  </span>
+                ) : '—'}
                 sublabel="Leading Country"
               />
               <StatCard
                 icon="📈"
                 label="الأكثر نشاطاً"
-                value={mostActive ? `${mostActive.flag_emoji} ${mostActive.name}` : '—'}
+                value={mostActive ? (
+                  <span className="inline-flex items-center gap-1.5">
+                    <FlagImage emoji={mostActive.flag_emoji} size="sm" />
+                    {mostActive.name}
+                  </span>
+                ) : '—'}
                 sublabel="Most Active"
               />
             </>

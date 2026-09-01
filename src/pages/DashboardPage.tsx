@@ -4,6 +4,7 @@ import { useCountries } from '../hooks/useCountries'
 import { useAgreements } from '../hooks/useAgreements'
 import { ProtectedRoute } from '../components/ProtectedRoute'
 import { showToast } from '../components/Toast'
+import { FlagImage } from '../components/FlagImage'
 import type { CountryWithAgreements } from '../types/database'
 
 function LoginForm() {
@@ -108,7 +109,7 @@ function PointsCard({ country, onUpdate }: { country: CountryWithAgreements; onU
   return (
     <div className="bg-surface rounded-xl border border-gray-200 p-4 shadow-sm">
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-3xl ltr-safe">{country.flag_emoji}</span>
+        <FlagImage emoji={country.flag_emoji} size="md" />
         <span className="font-bold text-ink">{country.name}</span>
       </div>
       <div className="flex items-center gap-2">
@@ -297,7 +298,7 @@ function DashboardContent() {
                       }
                     `}
                   >
-                    <span className="ltr-safe">{c.flag_emoji}</span>
+                    <FlagImage emoji={c.flag_emoji} size="sm" />
                     <span className="truncate">{c.name}</span>
                     {isSelected && <span className="ms-auto ltr-safe">✓</span>}
                   </button>
