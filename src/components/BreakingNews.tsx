@@ -61,7 +61,7 @@ export function BreakingNews({ agreement, onDismiss }: BreakingNewsProps) {
           {/* Ticker area */}
           <div className="flex-1 overflow-hidden relative">
             <div
-              className={`absolute top-0 right-0 h-full flex items-center whitespace-nowrap ${scrolling ? 'ticker-scroll' : ''}`}
+              className={`absolute top-0 left-0 h-full flex items-center whitespace-nowrap ${scrolling ? 'ticker-scroll' : ''}`}
             >
               <span className="flex items-center pe-4 ps-8 text-sm md:text-base font-semibold">
                 {/* Title */}

@@ -11,6 +11,7 @@ export interface Agreement {
   id: string
   title: string
   body: string
+  impact: string
   created_at: string
 }
 

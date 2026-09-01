@@ -96,6 +96,14 @@ export function AgreementsPage() {
                 {agreement.body}
               </p>
 
+              {/* Impact */}
+              {agreement.impact && (
+                <div className="bg-gold/5 border border-gold/20 rounded-xl px-4 py-3 mb-3">
+                  <p className="text-xs font-bold text-gold mb-1">⚡ أثر الاتفاقية:</p>
+                  <p className="text-sm text-ink leading-relaxed whitespace-pre-wrap">{agreement.impact}</p>
+                </div>
+              )}
+
               {/* Participating countries */}
               <div className="border-t border-gray-100 pt-3">
                 <p className="text-xs text-slate-gray mb-2 font-semibold">الدول المشاركة:</p>

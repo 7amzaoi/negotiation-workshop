@@ -121,11 +121,12 @@ export function useAgreements() {
   const createAgreement = async (
     title: string,
     body: string,
-    countryIds: string[]
+    countryIds: string[],
+    impact: string = ''
   ) => {
     const { data, error: agError } = await supabase
       .from('agreements')
-      .insert({ title, body })
+      .insert({ title, body, impact })
       .select()
       .single()
 
@@ -170,12 +171,13 @@ export function useAgreements() {
     id: string,
     title: string,
     body: string,
-    countryIds: string[]
+    countryIds: string[],
+    impact: string = ''
   ) => {
     // Update the agreement row
     const { error: agError } = await supabase
       .from('agreements')
-      .update({ title, body })
+      .update({ title, body, impact })
       .eq('id', id)
 
     if (agError) throw agError

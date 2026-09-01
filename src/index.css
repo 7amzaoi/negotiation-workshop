@@ -70,8 +70,8 @@ body {
 
 /* Breaking News Ticker */
 @keyframes ticker-scroll {
-  0%   { transform: translateX(100%); }
-  100% { transform: translateX(calc(-100vw - 100%)); }
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(calc(100vw + 100%)); }
 }
 
 @keyframes ticker-enter {

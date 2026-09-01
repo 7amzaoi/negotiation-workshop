@@ -195,11 +195,12 @@ function AgreementArchiveCard({
   agreement: AgreementWithCountries
   countries: CountryWithAgreements[]
   onDelete: (id: string) => Promise<void>
-  onUpdate: (id: string, title: string, body: string, countryIds: string[]) => Promise<void>
+  onUpdate: (id: string, title: string, body: string, countryIds: string[], impact: string) => Promise<void>
 }) {
   const [editing, setEditing] = useState(false)
   const [editTitle, setEditTitle] = useState(agreement.title)
   const [editBody, setEditBody] = useState(agreement.body)
+  const [editImpact, setEditImpact] = useState(agreement.impact || '')
   const [editCountries, setEditCountries] = useState<string[]>(agreement.countries.map(c => c.id))
   const [saving, setSaving] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -218,7 +219,7 @@ function AgreementArchiveCard({
     }
     setSaving(true)
     try {
-      await onUpdate(agreement.id, editTitle.trim(), editBody.trim(), editCountries)
+      await onUpdate(agreement.id, editTitle.trim(), editBody.trim(), editCountries, editImpact.trim())
       showToast('✅ تم تحديث الاتفاقية', 'success')
       setEditing(false)
     } catch {
@@ -265,8 +266,15 @@ function AgreementArchiveCard({
           value={editBody}
           onChange={e => setEditBody(e.target.value)}
           rows={3}
-          className="w-full bg-bg border border-gray-200 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:border-royal-blue focus:ring-2 focus:ring-royal-blue/20 transition resize-y"
+          className="w-full bg-bg border border-gray-200 rounded-lg px-3 py-2 text-sm mb-2 focus:outline-none focus:border-royal-blue focus:ring-2 focus:ring-royal-blue/20 transition resize-y"
           placeholder="نص الاتفاقية"
+        />
+        <textarea
+          value={editImpact}
+          onChange={e => setEditImpact(e.target.value)}
+          rows={2}
+          className="w-full bg-bg border border-gray-200 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:border-royal-blue focus:ring-2 focus:ring-royal-blue/20 transition resize-y"
+          placeholder="أثر الاتفاقية..."
         />
         <p className="text-xs font-semibold text-ink mb-1.5">الدول المشاركة:</p>
         <div className="flex flex-wrap gap-1.5 mb-3">
@@ -304,6 +312,12 @@ function AgreementArchiveCard({
         <time className="text-[11px] text-slate-gray whitespace-nowrap ltr-safe shrink-0">{formatDate(agreement.created_at)}</time>
       </div>
       <p className="text-xs text-slate-gray leading-relaxed mb-2 line-clamp-2">{agreement.body}</p>
+      {agreement.impact && (
+        <div className="bg-gold/5 border border-gold/20 rounded-lg px-3 py-1.5 mb-2">
+          <p className="text-[11px] font-bold text-gold mb-0.5">⚡ أثر الاتفاقية:</p>
+          <p className="text-xs text-ink line-clamp-2">{agreement.impact}</p>
+        </div>
+      )}
       <div className="flex flex-wrap gap-1.5 mb-3">
         {agreement.countries.map(c => (
           <span key={c.id} className="inline-flex items-center gap-1 bg-royal-blue/5 text-ink text-[11px] font-semibold px-2 py-0.5 rounded-full">
@@ -317,6 +331,7 @@ function AgreementArchiveCard({
           onClick={() => {
             setEditTitle(agreement.title)
             setEditBody(agreement.body)
+            setEditImpact(agreement.impact || '')
             setEditCountries(agreement.countries.map(c => c.id))
             setEditing(true)
           }}
@@ -361,6 +376,7 @@ function DashboardContent() {
   // New agreement form state
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
+  const [impact, setImpact] = useState('')
   const [selectedCountries, setSelectedCountries] = useState<string[]>([])
   const [creatingAgreement, setCreatingAgreement] = useState(false)
 
@@ -388,10 +404,11 @@ function DashboardContent() {
 
     setCreatingAgreement(true)
     try {
-      await createAgreement(title.trim(), body.trim(), selectedCountries)
+      await createAgreement(title.trim(), body.trim(), selectedCountries, impact.trim())
       showToast('✅ تم إنشاء الاتفاقية بنجاح!', 'success')
       setTitle('')
       setBody('')
+      setImpact('')
       setSelectedCountries([])
     } catch {
       showToast('❌ فشل إنشاء الاتفاقية — تحقق من الاتصال', 'error')
@@ -488,6 +505,18 @@ function DashboardContent() {
               onChange={e => setBody(e.target.value)}
               placeholder="اكتب نص الاتفاقية الكامل هنا..."
               rows={4}
+              className="w-full bg-bg border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-royal-blue focus:ring-2 focus:ring-royal-blue/20 transition resize-y"
+            />
+          </div>
+
+          {/* Impact */}
+          <div className="mb-4">
+            <label className="block text-sm font-semibold text-ink mb-1">أثر الاتفاقية</label>
+            <textarea
+              value={impact}
+              onChange={e => setImpact(e.target.value)}
+              placeholder="اكتب أثر الاتفاقية على الدول المشاركة..."
+              rows={3}
               className="w-full bg-bg border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-royal-blue focus:ring-2 focus:ring-royal-blue/20 transition resize-y"
             />
           </div>
