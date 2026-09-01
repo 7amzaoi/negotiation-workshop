@@ -57,11 +57,8 @@ export function HomePage() {
   const totalAgreements = agreements.length
   const totalPoints = countries.reduce((sum, c) => sum + c.points, 0)
   const leadingCountry = [...countries].sort((a, b) => b.points - a.points)[0]
-  const mostActive = [...countries].sort((a, b) => b.agreement_count - a.agreement_count)[0]
-
   // Top 3 by points
   const top3 = [...countries].sort((a, b) => b.points - a.points).slice(0, 3)
-  const maxPoints = top3[0]?.points || 1
 
   // Chart data
   const barChartData = [...countries]

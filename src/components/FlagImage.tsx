@@ -47,15 +47,17 @@ export function FlagImage({ emoji, size = 'md', className = '' }: FlagImageProps
   const code = resolveCode(emoji)
   const { width, imgWidth } = SIZES[size]
 
-  // QSD / unknown fallback
+  // QSD (قسد / SDF) — use local flag
   if (!code) {
     return (
-      <span
-        className={`inline-flex items-center justify-center rounded-sm bg-emerald/20 border border-emerald/30 shadow-sm ${className}`}
-        style={{ width, height: width * 0.75, fontSize: width * 0.4 }}
-      >
-        {emoji || '🏳️'}
-      </span>
+      <img
+        src="/flags/qsd.svg"
+        alt={emoji || 'قسد'}
+        width={width}
+        className={`rounded-sm object-cover shadow-sm ${className}`}
+        style={{ aspectRatio: '4/3' }}
+        loading="lazy"
+      />
     )
   }
 
