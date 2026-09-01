@@ -7,28 +7,32 @@ interface BreakingNewsProps {
   onDismiss: () => void
 }
 
+// Scroll animation = 20s, entrance = 0.5s, total ≈ 20.5s
+// Safety timeout = 23s (enough margin over animation)
+const SCROLL_DELAY = 500
+const SAFETY_TIMEOUT = 23000
+
 export function BreakingNews({ agreement, onDismiss }: BreakingNewsProps) {
   const [visible, setVisible] = useState(true)
   const [scrolling, setScrolling] = useState(false)
   const dismissedRef = useRef(false)
+  const onDismissRef = useRef(onDismiss)
+  onDismissRef.current = onDismiss
 
   const dismiss = () => {
     if (dismissedRef.current) return
     dismissedRef.current = true
     setVisible(false)
-    setTimeout(onDismiss, 600)
+    setTimeout(() => onDismissRef.current(), 500)
   }
 
   useEffect(() => {
-    // Start scrolling after entrance flash
-    const scrollTimer = setTimeout(() => setScrolling(true), 600)
-    // Safety auto-dismiss (in case animation end doesn't fire)
-    const safetyTimer = setTimeout(dismiss, 15000)
+    const scrollTimer = setTimeout(() => setScrolling(true), SCROLL_DELAY)
+    const safetyTimer = setTimeout(dismiss, SAFETY_TIMEOUT)
     return () => {
       clearTimeout(scrollTimer)
       clearTimeout(safetyTimer)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Build ticker content
@@ -83,7 +87,7 @@ export function BreakingNews({ agreement, onDismiss }: BreakingNewsProps) {
                   </span>
                 ))}
 
-                {/* Spacer + repeated title for continuous feel */}
+                {/* Spacer + repeated for continuous feel */}
                 <span className="text-red-300 mx-8">★ ★ ★</span>
                 <span className="text-yellow-300 font-black">📜 {agreement.title}</span>
                 <span className="text-red-300 mx-4">|</span>

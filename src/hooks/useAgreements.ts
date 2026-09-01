@@ -62,6 +62,7 @@ export function useAgreements() {
       }))
 
       // Detect new agreements (skip initial load)
+      // Only consider agreements that have countries attached
       if (!isInitialLoadRef.current && knownIdsRef.current.size > 0) {
         const newAgreement = enriched.find(a =>
           !knownIdsRef.current.has(a.id) && a.countries.length > 0
@@ -71,8 +72,16 @@ export function useAgreements() {
         }
       }
 
-      // Update known IDs
-      knownIdsRef.current = new Set(enriched.map(a => a.id))
+      // Only mark agreements as "known" once they have countries,
+      // so we can re-detect them on the next fetch when countries arrive
+      const idsWithCountries = enriched.filter(a => a.countries.length > 0).map(a => a.id)
+      const idsWithoutCountries = enriched.filter(a => a.countries.length === 0).map(a => a.id)
+      const nextKnown = new Set(idsWithCountries)
+      // Keep IDs without countries from previous set so we don't re-trigger on old data
+      idsWithoutCountries.forEach(id => {
+        if (knownIdsRef.current.has(id)) nextKnown.add(id)
+      })
+      knownIdsRef.current = nextKnown
       isInitialLoadRef.current = false
 
       setAgreements(enriched)
