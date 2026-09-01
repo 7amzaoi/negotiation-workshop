@@ -51,7 +51,7 @@ export function FlagImage({ emoji, size = 'md', className = '' }: FlagImageProps
   if (!code) {
     return (
       <img
-        src="/flags/qsd.svg"
+        src="/flags/qsd.png"
         alt={emoji || 'قسد'}
         width={width}
         className={`rounded-sm object-cover shadow-sm ${className}`}
