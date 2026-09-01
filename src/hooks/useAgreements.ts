@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { supabase, supabaseConfigured } from '../lib/supabase'
 import type { AgreementWithCountries, Agreement, Country, AgreementCountry } from '../types/database'
 
@@ -6,6 +6,11 @@ export function useAgreements() {
   const [agreements, setAgreements] = useState<AgreementWithCountries[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [breakingNews, setBreakingNews] = useState<AgreementWithCountries | null>(null)
+
+  // Track known agreement IDs to detect new ones
+  const knownIdsRef = useRef<Set<string>>(new Set())
+  const isInitialLoadRef = useRef(true)
 
   const fetchAgreements = useCallback(async () => {
     if (!supabaseConfigured) {
@@ -56,6 +61,20 @@ export function useAgreements() {
         countries: agreementCountriesMap.get(a.id) || [],
       }))
 
+      // Detect new agreements (skip initial load)
+      if (!isInitialLoadRef.current && knownIdsRef.current.size > 0) {
+        const newAgreement = enriched.find(a =>
+          !knownIdsRef.current.has(a.id) && a.countries.length > 0
+        )
+        if (newAgreement) {
+          setBreakingNews(newAgreement)
+        }
+      }
+
+      // Update known IDs
+      knownIdsRef.current = new Set(enriched.map(a => a.id))
+      isInitialLoadRef.current = false
+
       setAgreements(enriched)
       setError(null)
     } catch (err) {
@@ -76,7 +95,8 @@ export function useAgreements() {
         fetchAgreements()
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'agreement_countries' }, () => {
-        fetchAgreements()
+        // Small delay to let both the agreement and join rows settle
+        setTimeout(fetchAgreements, 500)
       })
       .subscribe()
 
@@ -84,6 +104,10 @@ export function useAgreements() {
       supabase.removeChannel(channel)
     }
   }, [fetchAgreements])
+
+  const dismissBreakingNews = useCallback(() => {
+    setBreakingNews(null)
+  }, [])
 
   const createAgreement = async (
     title: string,
@@ -116,5 +140,5 @@ export function useAgreements() {
     return agreement
   }
 
-  return { agreements, loading, error, createAgreement, refetch: fetchAgreements }
+  return { agreements, loading, error, createAgreement, refetch: fetchAgreements, breakingNews, dismissBreakingNews }
 }

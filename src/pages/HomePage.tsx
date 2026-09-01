@@ -8,13 +8,14 @@ import { useAgreements } from '../hooks/useAgreements'
 import { CountryCard } from '../components/CountryCard'
 import { StatCard } from '../components/StatCard'
 import { FlagImage } from '../components/FlagImage'
+import { BreakingNews } from '../components/BreakingNews'
 import { SkeletonCard, SkeletonStat } from '../components/SkeletonLoader'
 
 const CHART_COLORS = ['#1E33D6', '#14B26B', '#6E7CE0', '#D4AF37', '#E74C3C', '#3498DB', '#9B59B6', '#F39C12', '#1ABC9C', '#E67E22']
 
 export function HomePage() {
   const { countries, loading: countriesLoading } = useCountries()
-  const { agreements, loading: agreementsLoading } = useAgreements()
+  const { agreements, loading: agreementsLoading, breakingNews, dismissBreakingNews } = useAgreements()
 
   const loading = countriesLoading || agreementsLoading
 
@@ -43,6 +44,14 @@ export function HomePage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      {/* Breaking News Ticker */}
+      {breakingNews && (
+        <BreakingNews
+          agreement={breakingNews}
+          onDismiss={dismissBreakingNews}
+        />
+      )}
+
       {/* Stats strip */}
       <section className="mb-8">
         <div className="flex flex-wrap justify-center gap-4">

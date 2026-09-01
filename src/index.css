@@ -66,3 +66,31 @@ body {
 .medal-glow-bronze {
   box-shadow: 0 0 20px rgba(205, 127, 50, 0.4);
 }
+
+/* Breaking News Ticker */
+@keyframes ticker-scroll {
+  0%   { transform: translateX(100%); }
+  100% { transform: translateX(calc(-100vw - 100%)); }
+}
+
+@keyframes ticker-enter {
+  0%   { transform: translateX(100%); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes breaking-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.3; transform: scale(0.8); }
+}
+
+.ticker-scroll {
+  animation: ticker-scroll 25s linear forwards;
+}
+
+.ticker-enter {
+  animation: ticker-enter 0.6s ease-out forwards;
+}
+
+.breaking-pulse {
+  animation: breaking-pulse 1s ease-in-out infinite;
+}
