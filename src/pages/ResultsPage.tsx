@@ -14,6 +14,7 @@ export function ResultsPage() {
   const { resultsVisible, loading: settingsLoading } = useSettings()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [revealed, setRevealed] = useState(false)
+  const [showPodium, setShowPodium] = useState(false)
 
   // Sort by points descending, then reverse for display (10th → 1st)
   const ranked = [...countries].sort((a, b) => b.points - a.points)
@@ -47,7 +48,15 @@ export function ResultsPage() {
     }
   }
 
+  const handleShowPodium = () => {
+    setRevealed(false)
+    setTimeout(() => {
+      setShowPodium(true)
+    }, 400)
+  }
+
   const handleReset = () => {
+    setShowPodium(false)
     setRevealed(false)
     setTimeout(() => {
       setCurrentIndex(0)
@@ -91,6 +100,110 @@ export function ResultsPage() {
   }
 
   if (!currentCountry) return null
+
+  // Top 3 for podium
+  const top3 = ranked.slice(0, 3)
+
+  if (showPodium) {
+    return (
+      <div className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center px-4 py-8">
+        {/* Title */}
+        <div className="text-center mb-8 animate-fade-in-up">
+          <span className="text-5xl block mb-3">🏆</span>
+          <h2 className="text-3xl md:text-4xl font-black text-ink mb-2">المراكز الأولى</h2>
+          <p className="text-slate-gray font-semibold">نتائج ورشة التفاوض السياسي</p>
+        </div>
+
+        {/* Podium */}
+        <div className="flex justify-center items-end gap-4 md:gap-6 mb-10 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
+          {[top3[1], top3[0], top3[2]].map((country, vi) => {
+            if (!country) return null
+            const rank = vi === 0 ? 2 : vi === 1 ? 1 : 3
+            const heights = { 1: 'h-28 md:h-36', 2: 'h-20 md:h-28', 3: 'h-16 md:h-24' }
+            const widths = { 1: 'w-36 md:w-44', 2: 'w-32 md:w-40', 3: 'w-32 md:w-40' }
+            const barColors = {
+              1: 'bg-gradient-to-t from-gold/80 to-gold/30 border-gold/40',
+              2: 'bg-gradient-to-t from-gray-400/60 to-gray-300/20 border-gray-300/40',
+              3: 'bg-gradient-to-t from-orange-600/50 to-orange-400/15 border-orange-400/30',
+            }
+            const medalEmoji = { 1: '🥇', 2: '🥈', 3: '🥉' }
+
+            return (
+              <div
+                key={country.id}
+                className={`flex flex-col items-center animate-pop-in ${widths[rank as 1|2|3]}`}
+                style={{ animationDelay: `${400 + vi * 200}ms` }}
+              >
+                {/* Medal + Flag */}
+                <div className={`mb-3 ${rank === 1 ? 'animate-float' : ''}`}>
+                  <div className="relative">
+                    <div className={`p-1.5 rounded-xl border shadow-lg ${
+                      rank === 1 ? 'border-gold/40 bg-gold/10 medal-glow-gold' :
+                      rank === 2 ? 'border-gray-300/40 bg-gray-100/50 medal-glow-silver' :
+                      'border-orange-300/40 bg-orange-50/50 medal-glow-bronze'
+                    }`}>
+                      <FlagImage emoji={country.flag_emoji} size={rank === 1 ? 'xl' : 'lg'} />
+                    </div>
+                    <span className="absolute -top-3 -right-3 text-2xl drop-shadow-md">
+                      {medalEmoji[rank as 1|2|3]}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Name */}
+                <h3 className={`font-black text-ink mb-1 text-center ${rank === 1 ? 'text-lg md:text-xl' : 'text-base md:text-lg'}`}>
+                  {country.name}
+                </h3>
+
+                {/* Points */}
+                <div className={`inline-flex items-center gap-1 rounded-full px-3 py-1 mb-3 ${
+                  rank === 1 ? 'bg-gold/15' : 'bg-royal-blue/10'
+                }`}>
+                  <span className="text-sm">⭐</span>
+                  <span className={`font-black ltr-safe ${rank === 1 ? 'text-lg text-gold' : 'text-base text-royal-blue'}`}>
+                    {country.points}
+                  </span>
+                  <span className="text-xs text-slate-gray">نقطة</span>
+                </div>
+
+                {/* Podium bar */}
+                <div className={`
+                  ${heights[rank as 1|2|3]} w-full rounded-t-2xl border
+                  ${barColors[rank as 1|2|3]}
+                  flex items-center justify-center shadow-inner
+                `}>
+                  <span className="text-3xl md:text-4xl font-black text-white/50 drop-shadow">{rank}</span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Agreements count */}
+        <div className="flex flex-wrap justify-center gap-3 mb-8 animate-fade-in-up" style={{ animationDelay: '800ms' }}>
+          {top3.map((country, i) => (
+            <div key={country.id} className="flex items-center gap-2 bg-surface rounded-full px-4 py-2 border border-gray-200 shadow-sm">
+              <span className="text-sm">{['🥇','🥈','🥉'][i]}</span>
+              <FlagImage emoji={country.flag_emoji} size="sm" />
+              <span className="text-sm font-bold text-ink">{country.name}</span>
+              <span className="text-xs text-slate-gray">•</span>
+              <span className="text-xs text-emerald font-bold ltr-safe">{country.agreement_count} اتفاقية</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Reset button */}
+        <button
+          onClick={handleReset}
+          className="flex items-center gap-2 bg-royal-blue hover:bg-royal-blue/90 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 animate-fade-in-up"
+          style={{ animationDelay: '1000ms' }}
+        >
+          <span>🔄</span>
+          <span>إعادة العرض</span>
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center px-4 py-8">
@@ -221,11 +334,11 @@ export function ResultsPage() {
 
         {isLast ? (
           <button
-            onClick={handleReset}
+            onClick={handleShowPodium}
             className="flex items-center gap-2 bg-gold hover:bg-gold/90 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
           >
-            <span>🔄</span>
-            <span>إعادة العرض</span>
+            <span>🏅</span>
+            <span>عرض المراكز الأولى</span>
           </button>
         ) : (
           <button

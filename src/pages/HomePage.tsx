@@ -14,20 +14,6 @@ import { SkeletonCard, SkeletonStat } from '../components/SkeletonLoader'
 
 const CHART_COLORS = ['#3B5323', '#8B7D3C', '#5E6B4E', '#A67C00', '#6B4226', '#4A5D3B', '#7A6B3A', '#556B2F', '#8B8B6E', '#704214']
 
-const MEDAL_EMOJI: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
-
-function LiveIndicator() {
-  return (
-    <div className="inline-flex items-center gap-2 bg-royal-blue/10 border border-royal-blue/20 rounded-full px-3 py-1">
-      <span className="relative flex h-2.5 w-2.5">
-        <span className="live-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
-        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-500" />
-      </span>
-      <span className="text-xs font-bold text-royal-blue">بث مباشر</span>
-    </div>
-  )
-}
-
 function TimeSince({ date }: { date: string }) {
   const [text, setText] = useState('')
 
@@ -57,8 +43,6 @@ export function HomePage() {
   const totalAgreements = agreements.length
   const leadingCountry = [...countries].sort((a, b) => b.points - a.points)[0]
   const mostActive = [...countries].sort((a, b) => b.agreement_count - a.agreement_count)[0]
-  // Top 3 by points
-  const top3 = [...countries].sort((a, b) => b.points - a.points).slice(0, 3)
 
   // Chart data
   const barChartData = [...countries]
@@ -89,16 +73,6 @@ export function HomePage() {
           onDismiss={dismissBreakingNews}
         />
       )}
-
-      {/* Hero header */}
-      <section className="text-center mb-8 animate-fade-in-up">
-        <div className="flex justify-center mb-3">
-          <LiveIndicator />
-        </div>
-        <h2 className="text-lg md:text-xl text-slate-gray font-semibold">
-          تابع الأحداث لحظة بلحظة
-        </h2>
-      </section>
 
       {/* Stats strip */}
       <section className="mb-8">
@@ -145,68 +119,6 @@ export function HomePage() {
           )}
         </div>
       </section>
-
-      {/* Top 3 Podium */}
-      {!loading && top3.length > 0 && top3[0].points > 0 && (
-        <section className="mb-10">
-          <div className="flex items-center justify-center gap-2 mb-5">
-            <span className="h-px flex-1 max-w-20 bg-gold/30" />
-            <h2 className="text-xl font-bold text-ink">🏅 المراكز الأولى</h2>
-            <span className="h-px flex-1 max-w-20 bg-gold/30" />
-          </div>
-
-          <div className="flex justify-center items-end gap-3 md:gap-5">
-            {/* Reorder: 2nd, 1st, 3rd for podium layout */}
-            {[top3[1], top3[0], top3[2]].map((country, vi) => {
-              if (!country) return null
-              const rank = vi === 0 ? 2 : vi === 1 ? 1 : 3
-              const heights = { 1: 'h-20 md:h-24', 2: 'h-14 md:h-20', 3: 'h-12 md:h-16' }
-              const widths = { 1: 'w-32 md:w-40', 2: 'w-28 md:w-36', 3: 'w-28 md:w-36' }
-              const barColors = {
-                1: 'bg-gradient-to-t from-gold/80 to-gold/40',
-                2: 'bg-gradient-to-t from-gray-400/60 to-gray-300/30',
-                3: 'bg-gradient-to-t from-orange-600/50 to-orange-400/20',
-              }
-
-              return (
-                <div
-                  key={country.id}
-                  className={`flex flex-col items-center animate-pop-in ${widths[rank as 1|2|3]}`}
-                  style={{ animationDelay: `${vi * 150}ms` }}
-                >
-                  {/* Medal + Flag */}
-                  <div className={`mb-2 ${rank === 1 ? 'animate-float' : ''}`}>
-                    <div className="relative">
-                      <FlagImage emoji={country.flag_emoji} size={rank === 1 ? 'xl' : 'lg'} />
-                      <span className="absolute -top-2 -right-2 text-xl">
-                        {MEDAL_EMOJI[rank]}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Name + Points */}
-                  <h3 className={`font-bold text-ink mb-1 text-center ${rank === 1 ? 'text-base md:text-lg' : 'text-sm md:text-base'}`}>
-                    {country.name}
-                  </h3>
-                  <span className="text-gold font-black text-sm ltr-safe mb-2">
-                    {country.points} نقطة
-                  </span>
-
-                  {/* Podium bar */}
-                  <div className={`
-                    ${heights[rank as 1|2|3]} w-full rounded-t-xl
-                    ${barColors[rank as 1|2|3]}
-                    border border-gold/20
-                    flex items-center justify-center
-                  `}>
-                    <span className="text-2xl md:text-3xl font-black text-gold/60">{rank}</span>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </section>
-      )}
 
       {/* Recent Activity Feed */}
       {!loading && recentAgreements.length > 0 && (
