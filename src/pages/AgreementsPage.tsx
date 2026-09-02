@@ -3,6 +3,85 @@ import { useAgreements } from '../hooks/useAgreements'
 import { useCountries } from '../hooks/useCountries'
 import { SkeletonRow } from '../components/SkeletonLoader'
 import { FlagImage } from '../components/FlagImage'
+import type { AgreementWithCountries } from '../types/database'
+
+function AgreementCard({ agreement, formatDate }: { agreement: AgreementWithCountries; formatDate: (d: string) => string }) {
+  const [expanded, setExpanded] = useState(false)
+
+  // Check if content is long enough to need collapsing
+  const bodyLong = agreement.body.length > 150
+  const hasExtra = bodyLong || !!agreement.impact
+
+  return (
+    <div className="bg-surface rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-shadow">
+      {/* Header row */}
+      <div className="flex items-start justify-between gap-4 mb-3">
+        <h3 className="text-lg font-bold text-ink">{agreement.title}</h3>
+        <time className="text-xs text-slate-gray whitespace-nowrap ltr-safe">
+          {formatDate(agreement.created_at)}
+        </time>
+      </div>
+
+      {/* Body — collapsed or full */}
+      <p className="text-sm text-slate-gray leading-relaxed mb-3 whitespace-pre-wrap">
+        {expanded || !bodyLong
+          ? agreement.body
+          : agreement.body.slice(0, 150) + '...'}
+      </p>
+
+      {/* Impact — only when expanded */}
+      {expanded && agreement.impact && (
+        <div className="bg-gold/5 border border-gold/20 rounded-xl px-4 py-3 mb-3 animate-fade-in-up">
+          <p className="text-xs font-bold text-gold mb-1">⚡ أثر الاتفاقية:</p>
+          <p className="text-sm text-ink leading-relaxed whitespace-pre-wrap">{agreement.impact}</p>
+        </div>
+      )}
+
+      {/* Participating countries — only when expanded */}
+      {expanded && (
+        <div className="border-t border-gray-100 pt-3 mb-3 animate-fade-in-up">
+          <p className="text-xs text-slate-gray mb-2 font-semibold">الدول المشاركة:</p>
+          <div className="flex flex-wrap gap-2">
+            {agreement.countries.map(c => (
+              <span
+                key={c.id}
+                className="inline-flex items-center gap-1.5 bg-royal-blue/5 text-ink text-xs font-semibold px-2.5 py-1 rounded-full"
+              >
+                <FlagImage emoji={c.flag_emoji} size="sm" />
+                {c.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Countries preview when collapsed */}
+      {!expanded && (
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {agreement.countries.map(c => (
+            <span
+              key={c.id}
+              className="inline-flex items-center gap-1 bg-royal-blue/5 text-ink text-[11px] font-semibold px-2 py-0.5 rounded-full"
+            >
+              <FlagImage emoji={c.flag_emoji} size="sm" />
+              {c.name}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Show more / less button */}
+      {hasExtra && (
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="text-sm font-bold text-royal-blue hover:text-royal-blue/80 transition"
+        >
+          {expanded ? '▲ عرض أقل' : '▼ اعرض المزيد'}
+        </button>
+      )}
+    </div>
+  )
+}
 
 export function AgreementsPage() {
   const { agreements, loading } = useAgreements()
@@ -79,47 +158,11 @@ export function AgreementsPage() {
       ) : (
         <div className="space-y-4">
           {filtered.map(agreement => (
-            <div
+            <AgreementCard
               key={agreement.id}
-              className="bg-surface rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-shadow"
-            >
-              {/* Header row */}
-              <div className="flex items-start justify-between gap-4 mb-3">
-                <h3 className="text-lg font-bold text-ink">{agreement.title}</h3>
-                <time className="text-xs text-slate-gray whitespace-nowrap ltr-safe">
-                  {formatDate(agreement.created_at)}
-                </time>
-              </div>
-
-              {/* Body */}
-              <p className="text-sm text-slate-gray leading-relaxed mb-3 whitespace-pre-wrap">
-                {agreement.body}
-              </p>
-
-              {/* Impact */}
-              {agreement.impact && (
-                <div className="bg-gold/5 border border-gold/20 rounded-xl px-4 py-3 mb-3">
-                  <p className="text-xs font-bold text-gold mb-1">⚡ أثر الاتفاقية:</p>
-                  <p className="text-sm text-ink leading-relaxed whitespace-pre-wrap">{agreement.impact}</p>
-                </div>
-              )}
-
-              {/* Participating countries */}
-              <div className="border-t border-gray-100 pt-3">
-                <p className="text-xs text-slate-gray mb-2 font-semibold">الدول المشاركة:</p>
-                <div className="flex flex-wrap gap-2">
-                  {agreement.countries.map(c => (
-                    <span
-                      key={c.id}
-                      className="inline-flex items-center gap-1.5 bg-royal-blue/5 text-ink text-xs font-semibold px-2.5 py-1 rounded-full"
-                    >
-                      <FlagImage emoji={c.flag_emoji} size="sm" />
-                      {c.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
+              agreement={agreement}
+              formatDate={formatDate}
+            />
           ))}
         </div>
       )}

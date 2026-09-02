@@ -13,9 +13,12 @@ export function Header() {
   return (
     <header className="bg-surface border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-3">
-        {/* Logo + Title */}
-        <div className="flex items-center justify-center gap-3 mb-3">
-          <img src="/logo.webp" alt="شؤون الشباب" className="h-16 md:h-20 w-auto object-contain" />
+        {/* Logo in corner + Title centered */}
+        <div className="flex items-center justify-between mb-3">
+          {/* Spacer for balance */}
+          <div className="w-20 md:w-28" />
+
+          {/* Title — centered */}
           <div className="text-center">
             <h1 className="text-2xl md:text-3xl font-black text-royal-blue leading-tight">
               ورشة التفاوض السياسي
@@ -24,6 +27,9 @@ export function Header() {
               Political Negotiation Workshop
             </p>
           </div>
+
+          {/* Logo — right corner, bigger */}
+          <img src="/logo.webp" alt="شؤون الشباب" className="h-20 md:h-28 w-auto object-contain" />
         </div>
 
         {/* Navigation */}
