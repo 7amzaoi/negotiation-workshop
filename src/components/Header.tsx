@@ -15,8 +15,8 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 py-3">
         {/* Logo in corner + Title centered */}
         <div className="flex items-center justify-between mb-3">
-          {/* Spacer for balance */}
-          <div className="w-20 md:w-28" />
+          {/* Logo — right corner (first in RTL), bigger */}
+          <img src="/logo.webp" alt="شؤون الشباب" className="h-24 md:h-32 w-auto object-contain" />
 
           {/* Title — centered */}
           <div className="text-center">
@@ -28,8 +28,8 @@ export function Header() {
             </p>
           </div>
 
-          {/* Logo — right corner, bigger */}
-          <img src="/logo.webp" alt="شؤون الشباب" className="h-20 md:h-28 w-auto object-contain" />
+          {/* Spacer for balance */}
+          <div className="w-24 md:w-32" />
         </div>
 
         {/* Navigation */}
