@@ -5,6 +5,7 @@ import { HomePage } from './pages/HomePage'
 import { ResultsPage } from './pages/ResultsPage'
 import { AgreementsPage } from './pages/AgreementsPage'
 import { DashboardPage } from './pages/DashboardPage'
+import { GeopoliticsPage } from './pages/GeopoliticsPage'
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
                     <Route path="/" element={<HomePage />} />
                     <Route path="/results" element={<ResultsPage />} />
                     <Route path="/agreements" element={<AgreementsPage />} />
+                    <Route path="/geopolitics" element={<GeopoliticsPage />} />
                   </Routes>
                 </main>
               </>

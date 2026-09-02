@@ -1,8 +1,20 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase, supabaseConfigured } from '../lib/supabase'
 
+interface SettingsMap {
+  results_visible: string
+  geopolitics_title: string
+  geopolitics_body: string
+}
+
+const DEFAULTS: SettingsMap = {
+  results_visible: 'true',
+  geopolitics_title: '',
+  geopolitics_body: '',
+}
+
 export function useSettings() {
-  const [resultsVisible, setResultsVisible] = useState(true)
+  const [settings, setSettings] = useState<SettingsMap>(DEFAULTS)
   const [loading, setLoading] = useState(true)
 
   const fetchSettings = useCallback(async () => {
@@ -14,18 +26,22 @@ export function useSettings() {
     try {
       const { data, error } = await supabase
         .from('settings')
-        .select('value')
-        .eq('key', 'results_visible')
-        .single()
+        .select('key, value')
 
       if (error) {
-        // Table or row might not exist yet — default to visible
-        setResultsVisible(true)
+        // Table might not exist yet
+        setSettings(DEFAULTS)
       } else {
-        setResultsVisible(data.value === 'true')
+        const map = { ...DEFAULTS }
+        for (const row of data || []) {
+          if (row.key in map) {
+            (map as Record<string, string>)[row.key] = row.value
+          }
+        }
+        setSettings(map)
       }
     } catch {
-      setResultsVisible(true)
+      setSettings(DEFAULTS)
     } finally {
       setLoading(false)
     }
@@ -48,20 +64,42 @@ export function useSettings() {
     }
   }, [fetchSettings])
 
-  const toggleResultsVisible = async () => {
-    const newValue = !resultsVisible
-    setResultsVisible(newValue)
+  const updateSetting = async (key: keyof SettingsMap, value: string) => {
+    const prev = settings[key]
+    setSettings(s => ({ ...s, [key]: value }))
 
     const { error } = await supabase
       .from('settings')
-      .upsert({ key: 'results_visible', value: String(newValue) })
+      .upsert({ key, value })
 
     if (error) {
-      // Revert on failure
-      setResultsVisible(!newValue)
+      setSettings(s => ({ ...s, [key]: prev }))
       throw error
     }
   }
 
-  return { resultsVisible, loading, toggleResultsVisible }
+  const toggleResultsVisible = async () => {
+    const newValue = settings.results_visible === 'true' ? 'false' : 'true'
+    await updateSetting('results_visible', newValue)
+  }
+
+  const updateGeopolitics = async (title: string, body: string) => {
+    // Update both in parallel
+    const [r1, r2] = await Promise.all([
+      supabase.from('settings').upsert({ key: 'geopolitics_title', value: title }),
+      supabase.from('settings').upsert({ key: 'geopolitics_body', value: body }),
+    ])
+    if (r1.error) throw r1.error
+    if (r2.error) throw r2.error
+    setSettings(s => ({ ...s, geopolitics_title: title, geopolitics_body: body }))
+  }
+
+  return {
+    resultsVisible: settings.results_visible === 'true',
+    geopoliticsTitle: settings.geopolitics_title,
+    geopoliticsBody: settings.geopolitics_body,
+    loading,
+    toggleResultsVisible,
+    updateGeopolitics,
+  }
 }

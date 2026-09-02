@@ -4,6 +4,7 @@ const navItems = [
   { path: '/', label: 'الرئيسية' },
   { path: '/results', label: 'النتائج' },
   { path: '/agreements', label: 'الاتفاقيات' },
+  { path: '/geopolitics', label: 'السياق الجيوسياسي' },
 ]
 
 export function Header() {

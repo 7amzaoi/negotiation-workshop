@@ -373,8 +373,23 @@ function DashboardContent() {
   const { signOut } = useAuth()
   const { countries, loading: countriesLoading, updatePoints, updateRating } = useCountries()
   const { agreements, loading: agreementsLoading, createAgreement, deleteAgreement, updateAgreement } = useAgreements()
-  const { resultsVisible, toggleResultsVisible } = useSettings()
+  const { resultsVisible, toggleResultsVisible, geopoliticsTitle, geopoliticsBody, updateGeopolitics } = useSettings()
   const [togglingResults, setTogglingResults] = useState(false)
+
+  // Geopolitics form state
+  const [geoTitle, setGeoTitle] = useState('')
+  const [geoBody, setGeoBody] = useState('')
+  const [geoLoaded, setGeoLoaded] = useState(false)
+  const [savingGeo, setSavingGeo] = useState(false)
+
+  // Load geopolitics data once available
+  useEffect(() => {
+    if (!geoLoaded && (geopoliticsTitle || geopoliticsBody)) {
+      setGeoTitle(geopoliticsTitle)
+      setGeoBody(geopoliticsBody)
+      setGeoLoaded(true)
+    }
+  }, [geopoliticsTitle, geopoliticsBody, geoLoaded])
 
   // New agreement form state
   const [title, setTitle] = useState('')
@@ -505,7 +520,53 @@ function DashboardContent() {
         )}
       </section>
 
-      {/* Section B: Create Agreement */}
+      {/* Section B: Geopolitical Context */}
+      <section className="mb-10">
+        <h2 className="text-xl font-bold text-ink mb-4 flex items-center gap-2">
+          <span>🌍</span> السياق الجيوسياسي
+        </h2>
+        <div className="bg-surface rounded-2xl border border-gray-200 p-6 shadow-sm">
+          <div className="mb-4">
+            <label className="block text-sm font-semibold text-ink mb-1">العنوان</label>
+            <input
+              type="text"
+              value={geoTitle}
+              onChange={e => setGeoTitle(e.target.value)}
+              placeholder="مثال: خلفية الأزمة السورية"
+              className="w-full bg-bg border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-royal-blue focus:ring-2 focus:ring-royal-blue/20 transition"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-semibold text-ink mb-1">النص</label>
+            <textarea
+              value={geoBody}
+              onChange={e => setGeoBody(e.target.value)}
+              placeholder="اكتب السياق الجيوسياسي هنا..."
+              rows={6}
+              className="w-full bg-bg border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-royal-blue focus:ring-2 focus:ring-royal-blue/20 transition resize-y"
+            />
+          </div>
+          <button
+            onClick={async () => {
+              setSavingGeo(true)
+              try {
+                await updateGeopolitics(geoTitle.trim(), geoBody.trim())
+                showToast('✅ تم حفظ السياق الجيوسياسي', 'success')
+              } catch {
+                showToast('❌ فشل الحفظ', 'error')
+              } finally {
+                setSavingGeo(false)
+              }
+            }}
+            disabled={savingGeo}
+            className="w-full bg-royal-blue hover:bg-royal-blue/90 text-white font-bold py-3 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {savingGeo ? 'جاري الحفظ...' : '💾 حفظ السياق الجيوسياسي'}
+          </button>
+        </div>
+      </section>
+
+      {/* Section C: Create Agreement */}
       <section>
         <h2 className="text-xl font-bold text-ink mb-4 flex items-center gap-2">
           <span>📝</span> إنشاء اتفاقية جديدة
